@@ -1,0 +1,4 @@
+logs/
+result/
+hyperparameters.txt
+__pycache__
