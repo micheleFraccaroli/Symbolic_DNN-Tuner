@@ -1,9 +1,19 @@
 import numpy as np
-from cfr10 import net as cnet
-from cifar_dataset import cifar_data
+from neural_network import net as cnet
+from dataset.cifar_dataset import cifar_data
 from hyperopt import STATUS_OK, Trials, fmin, hp, space_eval, tpe
 from tensorflow.keras import backend as K
-from sklearn.model_selection import train_test_split
+
+
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    MAGENTA = '\033[1;35m'
+    CYAN = '\033[1;36m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
 
 '''
 hp → hyperparameter space

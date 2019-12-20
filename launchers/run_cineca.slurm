@@ -7,5 +7,5 @@
 #SBATCH --partition=gll_usr_gpuprod
 #SBATCH --gres=gpu:kepler:1
 
-python3 -W ignore NN_bayesian_opt.py
+python3 -W ignore main.py
 
