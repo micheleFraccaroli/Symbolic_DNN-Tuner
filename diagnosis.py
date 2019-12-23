@@ -1,14 +1,16 @@
 class diagnosis:
-    def __init__(self, history):
+    def __init__(self, history, diagnosis_logs):
         self.history = history
         self.issues = []
         self.epsilon_1 = 0.35
         self.epsilon_2 = 0.45
+        self.diagnosis_logs = diagnosis_logs
 
     def diagnosis(self):
         '''
         this function take history and result of the model for make a diagnosis
         all detected problems are stored into "issues" list
+        :return: list of issues
         '''
 
         # overfitting | underfitting -----------------------------------------------------------------------------------
@@ -27,5 +29,6 @@ class diagnosis:
         '''
         some diagnosis to be implemented
         '''
-        
+
+        self.diagnosis_logs.write(self.issues)
         return self.issues

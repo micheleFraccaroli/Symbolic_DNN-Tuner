@@ -15,11 +15,14 @@ class neural_network:
         self.file_out = f
         self.epochs = 50
         self.batch_size = 32
+        self.f = f
+        # logs
+        self.tensorboard = TensorBoard(log_dir="logs/{}".format(self.params['learning_rate']))
 
     def build_network(self):
         '''
         Function for define the network structure
-        return model
+        :return: model
         '''
 
         print("\n-----------------------------------------------------------\n")
@@ -52,16 +55,11 @@ class neural_network:
 
         return model
 
-    def training(self):
+    def training(self, model):
         '''
         Function for compiling and running training
-        return model and training history
+        :return: training history
         '''
-
-        model = self.build_network()
-
-        # logs
-        tensorboard = TensorBoard(log_dir="logs/{}".format(self.params['learning_rate']))
 
         # Training
         adam = Adam(lr=self.params['learning_rate'])
@@ -75,9 +73,9 @@ class neural_network:
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=self.batch_size,
                             verbose=1,
                             validation_data=(self.test_data, self.test_labels),
-                            callbacks=[tensorboard]).history
+                            callbacks=[self.tensorboard]).history
 
-        return model, history
+        return history
 
 
 if __name__ == '__main__':

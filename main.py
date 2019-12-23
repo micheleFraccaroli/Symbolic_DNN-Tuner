@@ -3,17 +3,8 @@ from neural_network import net as cnet
 from dataset.cifar_dataset import cifar_data
 from hyperopt import STATUS_OK, Trials, fmin, hp, space_eval, tpe
 from tensorflow.keras import backend as K
+from colors import colors
 
-
-class bcolors:
-    HEADER = '\033[95m'
-    OKBLUE = '\033[94m'
-    OKGREEN = '\033[92m'
-    MAGENTA = '\033[1;35m'
-    CYAN = '\033[1;36m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    ENDC = '\033[0m'
 
 '''
 hp → hyperparameter space
@@ -68,7 +59,8 @@ def hyperopt_fcn(params):
 
 
 # optimization
-print("OPTIMIZING ...")
+print(colors.WARNING, "\n------------ START BAYESIAN OPTIMIZATION ------------\n", colors.ENDC)
+print(colors.WARNING, "OPTIMIZING ...", colors.ENDC)
 best = fmin(hyperopt_fcn, search_space, algo=tpe_alg, max_evals=10)
 
 print("=============================== BEST ===============================\n")
