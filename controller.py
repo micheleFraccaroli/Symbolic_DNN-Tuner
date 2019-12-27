@@ -1,3 +1,4 @@
+from tensorflow.keras import backend as K
 from neural_network import neural_network
 from diagnosis import diagnosis
 from tuning_rules import tuning_rules
@@ -5,15 +6,16 @@ from colors import colors
 
 
 class controller:
-    def __init__(self, search_space, output_file, X_train, Y_train, X_test, Y_test):
-        self.space = search_space
+    def __init__(self, output_file, X_train, Y_train, X_test, Y_test, n_classes):
         self.f = output_file
         self.diagnosis_logs = open("diagnosis_logs.txt", "a")
         self.tuning_logs = open("tuning_logs.txt", "a")
-        self.nn = neural_network(X_train, Y_train, X_test, Y_test, self.space, self.f)
-        self.model = self.nn.build_network()
+        self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes, self.space, self.f)
+        self.X_test = X_test
+        self.Y_test = Y_test
+        # self.model = self.nn.build_network()
 
-    def training(self, model, X_test, Y_test):
+    def training(self, search_space):
         '''
         Training and tasting the neural network
         training(Train, Labels_train, Test, Label_test)
@@ -21,11 +23,14 @@ class controller:
         '''
 
         print(colors.MAGENTA, "\n------------ START TRAINING ------------\n", colors.ENDC)
-        self.history = self.nn.training(self.model)
-        self.score = self.model.evaluate(X_test, Y_test)
+        self.history = self.nn.training(search_space)
+        self.f.close()
+        self.score = self.model.evaluate(self.X_test, self.Y_test)
+        K.clear_session()
 
         # -self.score[1] is the opposite of accuracy
-        self.diagnosis()
+        space, model, to_optimize = self.diagnosis()
+        return space, model, to_optimize
 
     def diagnosis(self):
         '''
@@ -38,7 +43,8 @@ class controller:
         self.diagnosis_logs.close()
 
         if self.issues:
-            self.tuning()
+            self.space, self.model, -self.score[1] = self.tuning()
+            return self.space, self.model, -self.score[1]
         else:
             return self.space, self.model, -self.score[1]
 
