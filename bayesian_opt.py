@@ -1,12 +1,26 @@
 import numpy as np
-from sklearn.gaussian_process import GaussianProcessRegressor
 from scipy.stats import norm
 from warnings import simplefilter, catch_warnings
+import random
+
 
 class bayesian_opt:
-    def __init__(self, obj_function, max_evals):
-        self.obj = obj_function
+    def __init__(self, max_evals):
         self.max_evals = max_evals
+
+    def choice(self, space):
+        dVector = {}
+        aVector = []
+        res = []
+        for i in space:
+            if isinstance(space[i], list):
+                dVector[i] = random.choice(space[i])
+                aVector.append(random.choice(space[i]))
+            else:
+                dVector[i] = abs(space[i])
+                aVector.append(abs(space[i]))
+        res.append(aVector)
+        return dVector, res
 
     def surrogate(self, model, X):
         '''
@@ -30,25 +44,44 @@ class bayesian_opt:
         '''
         # best surrogate score found so far
         mfar, _ = self.surrogate(model, space)
-        best = np.argmax(mfar)
+        best = max(mfar)
 
         # calculate mean and std dev via surrogate
         mu, std = self.surrogate(model, new_X)
-        mu = mu[:,0]
+        mu = mu[:, 0]
 
         # probability of improvement
-        PoI = norm.cdf((mu-best) / (std+1E-9))
+        PoI = norm.cdf((mu - best) / (std + 1E-9))
         return PoI
 
-    def opt_aquisition(self, model, space, y):
+    def opt_aquisition(self, model, space):
         '''
         - create selection of new hyper-parameters -> random selection from dictionary or smart
-          selection from other function (use random for initial test
+          selection from other function (use random for initial test)
         - call self.acquisition for retrieve score probability
         - return best hp for the best score
 
          https://machinelearningmastery.com/what-is-bayesian-optimization/
         '''
+        vector = self.choice(space)
+        vector = vector.reshape(len(vector),1)
 
-    def optimize(self):
-        model = GaussianProcessRegressor()
+        # calculate the acquisition function
+        scores = self.acquisition(model, space, vector)
+        max = np.argmax(scores)
+        return vector[max,0]
+
+
+    # def byOptimize(self, space, init):
+    #     '''
+    #     Perform Bayesian Optimization
+    #     :param space: hyper-parameters space
+    #     :param init: first hyper-parameters for first training
+    #     :return: best hyper-parameters founded
+    #     '''
+    #     model = GaussianProcessRegressor()
+    #     model.fit(space,init)
+    #
+    #     for i in range(self.max_evals):
+    #         x = self.opt_aquisition(model, space)
+    #         actual = self.obj(x)

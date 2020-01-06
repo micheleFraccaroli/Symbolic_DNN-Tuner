@@ -12,7 +12,7 @@ class neural_network:
         self.test_data = X_test
         self.test_labels = Y_test
         self.n_classes = n_classes
-        self.epochs = 50
+        self.epochs = 1
         self.batch_size = 32
         self.f = f
 
@@ -77,7 +77,7 @@ class neural_network:
                             validation_data=(self.test_data, self.test_labels),
                             callbacks=[tensorboard]).history
 
-        return history
+        return model, history
 
 
 if __name__ == '__main__':

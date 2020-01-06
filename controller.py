@@ -15,7 +15,7 @@ class controller:
         self.Y_test = Y_test
         # self.model = self.nn.build_network()
 
-    def training(self, search_space):
+    def training(self, search_space, init=True):
         '''
         Training and tasting the neural network
         training(Train, Labels_train, Test, Label_test)
@@ -28,9 +28,12 @@ class controller:
         self.score = self.model.evaluate(self.X_test, self.Y_test)
         K.clear_session()
 
-        # -self.score[1] is the opposite of accuracy
-        space, model, to_optimize = self.diagnosis()
-        return space, model, to_optimize
+        if init:
+            return -self.score[1]
+        else:
+            # -self.score[1] is the opposite of accuracy
+            space, model, to_optimize = self.diagnosis()
+            return to_optimize
 
     def diagnosis(self):
         '''
