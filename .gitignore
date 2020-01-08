@@ -1,4 +1,7 @@
+others
+checkpoints
 logs/
 result/
 test/hyperparameters.txt
+test/logs
 __pycache__

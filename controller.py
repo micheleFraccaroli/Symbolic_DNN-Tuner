@@ -10,12 +10,11 @@ class controller:
         self.f = output_file
         self.diagnosis_logs = open("diagnosis_logs.txt", "a")
         self.tuning_logs = open("tuning_logs.txt", "a")
-        self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes, self.space, self.f)
+        self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes, self.f)
         self.X_test = X_test
         self.Y_test = Y_test
-        # self.model = self.nn.build_network()
 
-    def training(self, search_space, init=True):
+    def training(self, search_space):
         '''
         Training and tasting the neural network
         training(Train, Labels_train, Test, Label_test)
@@ -23,17 +22,14 @@ class controller:
         '''
 
         print(colors.MAGENTA, "\n------------ START TRAINING ------------\n", colors.ENDC)
-        self.history = self.nn.training(search_space)
+        self.model, self.history = self.nn.training(search_space)
         self.f.close()
         self.score = self.model.evaluate(self.X_test, self.Y_test)
-        K.clear_session()
 
-        if init:
-            return -self.score[1]
-        else:
-            # -self.score[1] is the opposite of accuracy
-            space, model, to_optimize = self.diagnosis()
-            return to_optimize
+        # start diagnosis
+        space, model, to_optimize = self.diagnosis()
+        K.clear_session()
+        return to_optimize
 
     def diagnosis(self):
         '''

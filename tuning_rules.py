@@ -1,6 +1,7 @@
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 from tensorflow.keras import regularizers as reg
 from tensorflow.keras.layers import *
+from search_space import search_space
 
 class tuning_rules:
     def __init__(self, diseases, search_space, tuning_logs, model):

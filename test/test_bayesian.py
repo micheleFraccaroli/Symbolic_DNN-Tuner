@@ -34,6 +34,10 @@ X = bo.choice(search_space)
 checkpoint_saver = CheckpointSaver("../checkpoints/checkpoint.pkl", compress=9)
 
 # optimization
-search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,callback=[checkpoint_saver])
+search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_random_starts=1,
+                         callback=[checkpoint_saver])
+
+print(search_res)
+# restore checkpoints
 search_res = load('../checkpoints/checkpoint.pkl')
 x0 = search_res.x_iters

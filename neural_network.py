@@ -12,7 +12,7 @@ class neural_network:
         self.test_data = X_test
         self.test_labels = Y_test
         self.n_classes = n_classes
-        self.epochs = 1
+        self.epochs = 50
         self.batch_size = 32
         self.f = f
 
@@ -21,10 +21,10 @@ class neural_network:
         Function for define the network structure
         :return: model
         '''
+        self.f.write(str(params) + "\n")
 
         print("\n-----------------------------------------------------------\n")
         print(params)
-        self.f.write(str(params) + "\n")
         print("\n-----------------------------------------------------------\n")
 
         model = Sequential()
