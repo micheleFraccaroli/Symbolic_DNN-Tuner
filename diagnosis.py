@@ -1,6 +1,7 @@
 class diagnosis:
-    def __init__(self, history, diagnosis_logs):
+    def __init__(self, history, diagnosis_logs, score):
         self.history = history
+        self.score = score
         self.issues = []
         self.epsilon_1 = 0.35
         self.epsilon_2 = 0.45
@@ -15,8 +16,8 @@ class diagnosis:
 
         # overfitting | underfitting -----------------------------------------------------------------------------------
 
-        last_training_acc = self.history['acc'][len(self.history['acc'])] - 1
-        last_training_loss = self.history['loss'][len(self.history['loss'])] - 1
+        last_training_acc = self.history['acc'][len(self.history['acc'])-1]
+        last_training_loss = self.history['loss'][len(self.history['loss'])-1]
 
         if abs(last_training_acc - self.score[1]) > self.epsilon_1 or abs(
                 last_training_loss - self.score[0]) > self.epsilon_1:
@@ -30,5 +31,5 @@ class diagnosis:
         some diagnosis to be implemented
         '''
 
-        self.diagnosis_logs.write(self.issues)
+        self.diagnosis_logs.write(str(self.issues))
         return self.issues

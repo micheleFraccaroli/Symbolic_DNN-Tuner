@@ -1,11 +1,11 @@
-from neural_network import neural_network
-from dataset.cifar_dataset import cifar_data
-from bayesian_opt import bayesian_opt
-from skopt.space import Integer, Real
-from skopt.utils import use_named_args
-from skopt import gp_minimize, callbacks
+from skopt import gp_minimize
 from skopt import load
 from skopt.callbacks import CheckpointSaver
+from skopt.space import Integer, Real
+from skopt.utils import use_named_args
+
+from dataset.cifar_dataset import cifar_data
+from neural_network import neural_network
 
 search_space = [
     Integer(16, 48, name='unit_c1'),
@@ -29,8 +29,6 @@ def objective(**params):
 
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
-bo = bayesian_opt(3)
-X = bo.choice(search_space)
 checkpoint_saver = CheckpointSaver("../checkpoints/checkpoint.pkl", compress=9)
 
 # optimization

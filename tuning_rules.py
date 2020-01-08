@@ -21,10 +21,14 @@ class tuning_rules:
             for l in self.model.layers:
                 if 'conv' in l.name:
                     l.kernel_regularize = reg.l2(self.weight_decay)
+                    new_hp = {'regularization': self.weight_decay}
+                    self.space = self.space.add_params(new_hp)
                 if 'activation' in l.name:
                     self.model.insert(self.model.layers.index(l) + 1, BatchNormalization())
         elif "underfitting" in self.diseases:
-            pass
+            for hp in self.space:
+                if hp.name == 'learning_rate':
+                    hp.high = hp.high/10**2
             # add new layers or neurons
             # extend training epochs
 
