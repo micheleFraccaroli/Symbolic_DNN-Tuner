@@ -1,7 +1,7 @@
-others
-checkpoints
+others/
+checkpoints/
 logs/
 result/
 test/hyperparameters.txt
-test/logs
+test/logs/
 __pycache__
