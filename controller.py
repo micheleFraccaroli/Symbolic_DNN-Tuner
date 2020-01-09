@@ -5,16 +5,16 @@ from diagnosis import diagnosis
 from tuning_rules import tuning_rules
 from colors import colors
 from search_space import search_space
+import datetime
 
 
 class controller:
-    def __init__(self, output_file, X_train, Y_train, X_test, Y_test, n_classes):
+    def __init__(self, output_file, X_train, Y_train, X_test, Y_test, n_classes, first_params):
         self.f = output_file
-        self.diagnosis_logs = open("algorithm_logs/diagnosis_logs.txt", "a")
-        self.tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
         self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes, self.f)
-        self.X_test = X_test
-        self.Y_test = Y_test
+        self.model = self.nn.build_network(first_params)
+        self.X_test = X_test[:100]
+        self.Y_test = Y_test[:100]
         self.issues = []
         self.ss = search_space()
         self.space = self.ss.search_sp()
@@ -27,13 +27,10 @@ class controller:
         '''
 
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
-        self.model, self.history = self.nn.training(params)
+        self.model, self.history = self.nn.training(params, self.model)
         self.f.close()
         self.score = self.model.evaluate(self.X_test, self.Y_test)
 
-        # start diagnosis
-        #space, model, to_optimize = self.diagnosis()
-        K.clear_session()
         return -self.score[1]
 
     def diagnosis(self):
@@ -42,13 +39,16 @@ class controller:
         :return: call to tuning method or hp_space, model and accuracy(*-1)
         '''
         print(colors.CYAN, "|  ----> START DIAGNOSIS\n", colors.ENDC)
-        d = diagnosis(self.history, self.diagnosis_logs, self.score)
+        diagnosis_logs = open("algorithm_logs/diagnosis_logs.txt", "a")
+        dt = datetime.datetime.now()
+        diagnosis_logs.write("-------------- " + str(dt) + " --------------\n")
+        d = diagnosis(self.history, diagnosis_logs, self.score)
         self.issues = d.diagnosis()
-        self.diagnosis_logs.close()
+        diagnosis_logs.close()
 
         if self.issues:
-            space, model, to_optimize = self.tuning()
-            return space, model, to_optimize
+            self.space, self.model, to_optimize = self.tuning()
+            return self.space, self.model, to_optimize
         else:
             return self.space, self.model, -self.score[1]
 
@@ -58,9 +58,12 @@ class controller:
         :return: new hp_space, new_model and accuracy(*-1) for the Bayesian Optimization
         '''
         print(colors.FAIL, "|  ------> START TUNING\n", colors.ENDC)
-        tr = tuning_rules(self.issues, self.ss, self.tuning_logs, self.model)
+        tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
+        dt = datetime.datetime.now()
+        tuning_logs.write("-------------- " + str(dt) + " --------------\n")
+        tr = tuning_rules(self.issues, self.space, self.ss, tuning_logs, self.model)
         new_space, new_model = tr.repair()
-        self.tuning_logs.close()
+        tuning_logs.close()
         self.issues = []
-
+        #K.clear_session()
         return new_space, new_model, -self.score[1]

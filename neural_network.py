@@ -1,5 +1,5 @@
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout)
+from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input, BatchNormalization)
+from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 from dataset.cifar_dataset import cifar_data
@@ -7,12 +7,12 @@ from dataset.cifar_dataset import cifar_data
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes, f):
-        self.train_data = X_train
-        self.train_labels = Y_train
-        self.test_data = X_test
-        self.test_labels = Y_test
+        self.train_data = X_train[:500]
+        self.train_labels = Y_train[:500]
+        self.test_data = X_test[:100]
+        self.test_labels = Y_test[:100]
         self.n_classes = n_classes
-        self.epochs = 1
+        self.epochs = 10
         self.batch_size = 32
         self.f = f
 
@@ -27,38 +27,37 @@ class neural_network:
         print(params)
         print("\n-----------------------------------------------------------\n")
 
-        model = Sequential()
-        model.add(Conv2D(params['unit_c1'], (3, 3), padding='same',
-                         input_shape=self.train_data.shape[1:]))
-        model.add(Activation('relu'))
-        model.add(Conv2D(params['unit_c1'], (3, 3)))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(params['dr1_2']))
+        inputs = Input((self.train_data.shape[1:]))
+        x = Conv2D(params['unit_c1'], (3, 3), padding='same')(inputs)
+        x = Activation('relu')(x)
+        x = Conv2D(params['unit_c1'], (3,3))(x)
+        x = Activation('relu')(x)
+        x = MaxPooling2D(pool_size=(2,2))(x)
 
-        model.add(Conv2D(params['unit_c2'], (3, 3), padding='same'))
-        model.add(Activation('relu'))
-        model.add(Conv2D(params['unit_c2'], (3, 3)))
-        model.add(Activation('relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(params['dr1_2']))
+        x = Conv2D(params['unit_c2'], (3, 3), padding='same')(x)
+        x = Activation('relu')(x)
+        x = Conv2D(params['unit_c2'], (3, 3))(x)
+        x = Activation('relu')(x)
+        x = MaxPooling2D(pool_size=(2, 2))(x)
+        x = Dropout(params['dr1_2'])(x)
 
-        model.add(Flatten())
-        model.add(Dense(params['unit_d']))
-        model.add(Activation('relu'))
-        model.add(Dropout(params['dr_f']))
-        model.add(Dense(self.n_classes))
-        model.add(Activation('softmax'))
+        x = Flatten()(x)
+        x = Dense(params['unit_d'])(x)
+        x = Activation('relu')(x)
+        x = Dropout(params['dr_f'])(x)
+        x = Dense(self.n_classes)(x)
+        x = Activation('softmax')(x)
+
+        model = Model(inputs=inputs, outputs=x)
 
         return model
 
-    def training(self, params):
+    def training(self, params, model):
         '''
         Function for compiling and running training
         :return: training history
         '''
-
-        model = self.build_network(params)
+        #model = self.build_network(params)
 
         # tensorboard logs
         tensorboard = TensorBoard(log_dir="logs/{}".format(params['learning_rate']))
@@ -93,11 +92,7 @@ if __name__ == '__main__':
     }
 
     f = open("test/hyperparameters.txt", "w")
-    n = neural_network(X_train, Y_train, X_test, Y_test, default_params, f)
-    model, history = n.training()
+    n = neural_network(X_train, Y_train, X_test, Y_test,n_classes, f)
+    model, history = n.training(default_params)
     f.close()
-    score = model.evaluate(X_test, Y_test)
-
-    print(score)
-    print("------------------------------------------------------------")
-    print(history)
+    score = model.evaluate(X_test[:100], Y_test[:100])
