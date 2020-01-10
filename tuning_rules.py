@@ -2,6 +2,8 @@ import re
 from tensorflow.keras import Model
 from tensorflow.keras import regularizers as reg
 from tensorflow.keras.layers import *
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
+
 
 class tuning_rules:
     def __init__(self, diseases, params, ss, tuning_logs, model):
@@ -74,10 +76,10 @@ class tuning_rules:
                     self.space = self.ss.add_params(new_hp)
 
             self.model = self.insert_layer(self.model, '.*activation.*')
-        elif "underfitting" in self.diseases:
+        if "underfitting" in self.diseases:
             for hp in self.space:
                 if hp.name == 'learning_rate':
-                    hp.high = hp.high / 2
+                    hp.high = hp.high / 10 ** 1.5
             # add new layers or neurons
             # extend training epochs
 

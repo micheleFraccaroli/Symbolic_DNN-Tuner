@@ -22,7 +22,7 @@ class diagnosis:
         if abs(last_training_acc - self.score[1]) > self.epsilon_1 or abs(
                 last_training_loss - self.score[0]) > self.epsilon_1:
             self.issues.append("overfitting")
-        elif abs(last_training_acc - 1) > self.epsilon_2 or abs(last_training_loss - 1) > self.epsilon_2:
+        if abs(last_training_acc - 1) > self.epsilon_2 or abs(last_training_loss - 1) > self.epsilon_2:
             self.issues.append("underfitting")
 
         # other diagnosis ----------------------------------------------------------------------------------------------
