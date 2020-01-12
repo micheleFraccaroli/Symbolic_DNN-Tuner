@@ -76,11 +76,12 @@ class tuning_rules:
                     self.space = self.ss.add_params(new_hp)
 
             self.model = self.insert_layer(self.model, '.*activation.*')
+            print("I've try to fix OVERFITTING\n")
         if "underfitting" in self.diseases:
             for hp in self.space:
                 if hp.name == 'learning_rate':
                     hp.high = hp.high / 10 ** 1.5
+            print("I've try to fix UNDERFITTING\n")
             # add new layers or neurons
             # extend training epochs
-
         return self.space, self.model

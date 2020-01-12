@@ -94,8 +94,6 @@ if __name__ == '__main__':
         'learning_rate': 0.002
     }
 
-    f = open("test/hyperparameters.txt", "w")
-    n = neural_network(X_train, Y_train, X_test, Y_test,n_classes, f)
-    model, history = n.training(default_params)
-    f.close()
-    score = model.evaluate(X_test, Y_test)
+    n = neural_network(X_train, Y_train, X_test, Y_test,n_classes)
+    model = n.build_network(default_params)
+    score, history = n.training(default_params, model, True)

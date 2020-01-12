@@ -38,4 +38,5 @@ class diagnosis:
         '''
 
         self.diagnosis_logs.write(str(self.issues))
+        print(" I've found: " + str(self.issues) + "\n")
         return self.issues
