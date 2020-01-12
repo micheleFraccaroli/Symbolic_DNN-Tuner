@@ -1,3 +1,5 @@
+import platform
+
 class diagnosis:
     def __init__(self, history, diagnosis_logs, score):
         self.history = history
@@ -15,8 +17,12 @@ class diagnosis:
         '''
 
         # overfitting | underfitting -----------------------------------------------------------------------------------
+        if platform.system() == 'Darwin':
+            metric = 'acc'
+        else:
+            metric = 'accuracy'
 
-        last_training_acc = self.history['acc'][len(self.history['acc'])-1]
+        last_training_acc = self.history[metric][len(self.history[metric])-1]
         last_training_loss = self.history['loss'][len(self.history['loss'])-1]
 
         if abs(last_training_acc - self.score[1]) > self.epsilon_1 or abs(

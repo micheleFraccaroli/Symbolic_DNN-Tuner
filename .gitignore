@@ -2,7 +2,7 @@ others/
 checkpoints/
 logs/
 result/
-algorithm_logs/*
+algorithm_logs/
 test/hyperparameters.txt
 test/logs/
 __pycache__
