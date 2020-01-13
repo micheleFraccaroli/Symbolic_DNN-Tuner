@@ -60,12 +60,12 @@ def start(search_space, iter):
         if len(new_space) == len(search_space):
             controller.set_case(False)
             res = load('checkpoints/checkpoint.pkl')
-            search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI', n_calls=5,
+            search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI', n_calls=10,
                                      n_random_starts=1, callback=[checkpoint_saver])
         else:
             controller.set_case(True)
             search_space = new_space
-            search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
+            search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_random_starts=1,
                                      callback=[checkpoint_saver])
         new_space, new_model, to_optimize = start_analisys()
 
