@@ -7,7 +7,7 @@ class search_space:
 
     def search_sp(self):
         self.search_space = [
-            Integer(16, 48, name='unit_c1'),
+            Integer(16, 64, name='unit_c1'),
             Real(0.002, 0.3, name='dr1_2'),
             Integer(64, 128, name='unit_c2'),
             Integer(256, 512, name='unit_d'),

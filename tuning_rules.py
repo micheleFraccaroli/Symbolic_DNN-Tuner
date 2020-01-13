@@ -1,4 +1,5 @@
 import re
+import random as ra
 from tensorflow.keras import Model
 from tensorflow.keras import regularizers as reg
 from tensorflow.keras.layers import *
@@ -78,10 +79,16 @@ class tuning_rules:
             self.model = self.insert_layer(self.model, '.*activation.*')
             print("I've try to fix OVERFITTING\n")
         if "underfitting" in self.diseases:
-            for hp in self.space:
-                if hp.name == 'learning_rate':
-                    hp.high = hp.high / 10 ** 1.5
-            print("I've try to fix UNDERFITTING\n")
+            prob = ra.random()
+            if prob <= 0.5:
+                for hp in self.space:
+                    if hp.name == 'learning_rate':
+                        hp.high = hp.high / 10 ** 1.5
+                print("I've try to fix UNDERFITTING\n")
+            else:
+                for hp in self.space:
+                    if 'unit' in hp.name:
+                        hp.low = int(hp.low + ((hp.high - hp.low)/2))
             # add new layers or neurons
             # extend training epochs
         return self.space, self.model
