@@ -8,11 +8,12 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class tuning_rules:
-    def __init__(self, params, ss):
+    def __init__(self, params, ss, model):
         self.space = params
         self.ss = ss
         self.weight_decay = 1e-4
         self.count_lr = 0
+        self.model = model
 
     def insert_layer(self, model, layer_regex, position='after'):
         # Auxiliary dictionary to describe the network graph
@@ -62,29 +63,29 @@ class tuning_rules:
 
         return Model(inputs=model.inputs, outputs=x)
 
-    def reload_model(self):
-        json_file = open('Model/model.json', 'r')
-        loaded_model_json = json_file.read()
-        json_file.close()
-        model = model_from_json(loaded_model_json)
-
-        return model
+    # def reload_model(self):
+    #     json_file = open('Model/model.json', 'r')
+    #     loaded_model_json = json_file.read()
+    #     json_file.close()
+    #     model = model_from_json(loaded_model_json)
+    #
+    #     return model
 
     def repair(self, diseases, tuning_logs):
         '''
         Method for fix the issues
         :return: new hp_space and new model
         '''
-        model = self.reload_model()
+        # model = self.reload_model()
         if "overfitting" in diseases:
             tuning_logs.write("Applied regulatization and batch normalization after activation\n")
-            for l in model.layers:
+            for l in self.model.layers:
                 if 'conv' in l.name:
                     l.kernel_regularize = reg.l2(self.weight_decay)
                     new_hp = {'regularization': self.weight_decay}
                     self.space = self.ss.add_params(new_hp)
 
-            model = self.insert_layer(model, '.*activation.*')
+            model = self.insert_layer(self.model, '.*activation.*')
             print("I've try to fix OVERFITTING by adding regularization and batch normalization\n")
             model_json = model.to_json()
             model_name = "Model/model.json"
@@ -106,4 +107,4 @@ class tuning_rules:
                         tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
             # add new layers or neurons
             # extend training epochs
-        return self.space, model
+        return self.space, self.model

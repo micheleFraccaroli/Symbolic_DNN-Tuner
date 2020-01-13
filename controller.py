@@ -27,7 +27,7 @@ class controller:
         '''
 
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
-        self.score, self.history = self.nn.training(params, self.new)
+        self.score, self.history, self.model = self.nn.training(params, self.new)
         #self.score = self.model.evaluate(self.X_test, self.Y_test)
 
         return -self.score[1]
@@ -56,7 +56,7 @@ class controller:
         '''
         print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
         tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
-        new_space, self.model = self.tr.repair(self.issues, tuning_logs)
+        new_space, self.model = self.tr.repair(self.issues, tuning_logs, self.model)
         tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)

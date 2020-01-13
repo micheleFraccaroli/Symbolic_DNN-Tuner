@@ -88,9 +88,9 @@ class neural_network:
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
 
-        del model
+        #del model
         K.clear_session()
-        return score, history
+        return score, history, model
 
 
 if __name__ == '__main__':
@@ -107,4 +107,4 @@ if __name__ == '__main__':
 
     n = neural_network(X_train, Y_train, X_test, Y_test,n_classes)
     #model = n.build_network(default_params)
-    score, history = n.training(default_params, False)
+    score, history, model = n.training(default_params, False)
