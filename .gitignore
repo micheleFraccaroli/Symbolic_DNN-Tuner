@@ -6,3 +6,5 @@ algorithm_logs/
 test/hyperparameters.txt
 test/logs/
 __pycache__
+Weights
+Model

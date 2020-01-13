@@ -1,15 +1,12 @@
 import platform
 
 class diagnosis:
-    def __init__(self, history, diagnosis_logs, score):
-        self.history = history
-        self.score = score
+    def __init__(self):
         self.issues = []
         self.epsilon_1 = 0.35
         self.epsilon_2 = 0.45
-        self.diagnosis_logs = diagnosis_logs
 
-    def diagnosis(self):
+    def diagnosis(self, history, score, diagnosis_logs):
         '''
         this function take history and result of the model for make a diagnosis
         all detected problems are stored into "issues" list
@@ -22,11 +19,11 @@ class diagnosis:
         else:
             metric = 'accuracy'
 
-        last_training_acc = self.history[metric][len(self.history[metric])-1]
-        last_training_loss = self.history['loss'][len(self.history['loss'])-1]
+        last_training_acc = history[metric][len(history[metric])-1]
+        last_training_loss = history['loss'][len(history['loss'])-1]
 
-        if abs(last_training_acc - self.score[1]) > self.epsilon_1 or abs(
-                last_training_loss - self.score[0]) > self.epsilon_1:
+        if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
+                last_training_loss - score[0]) > self.epsilon_1:
             self.issues.append("overfitting")
         if abs(last_training_acc - 1) > self.epsilon_2 or abs(last_training_loss - 1) > self.epsilon_2:
             self.issues.append("underfitting")
@@ -37,6 +34,6 @@ class diagnosis:
         some diagnosis to be implemented
         '''
 
-        self.diagnosis_logs.write(str(self.issues))
+        diagnosis_logs.write(str(self.issues))
         print(" I've found: " + str(self.issues) + "\n")
         return self.issues

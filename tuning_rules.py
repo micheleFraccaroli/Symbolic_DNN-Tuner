@@ -3,17 +3,16 @@ import random as ra
 from tensorflow.keras import Model
 from tensorflow.keras import regularizers as reg
 from tensorflow.keras.layers import *
+from tensorflow.keras.models import model_from_json
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
 class tuning_rules:
-    def __init__(self, diseases, params, ss, tuning_logs, model):
-        self.diseases = diseases
+    def __init__(self, params, ss):
         self.space = params
         self.ss = ss
-        self.tuning_logs = tuning_logs
         self.weight_decay = 1e-4
-        self.model = model
+        self.count_lr = 0
 
     def insert_layer(self, model, layer_regex, position='after'):
         # Auxiliary dictionary to describe the network graph
@@ -63,32 +62,48 @@ class tuning_rules:
 
         return Model(inputs=model.inputs, outputs=x)
 
-    def repair(self):
+    def reload_model(self):
+        json_file = open('Model/model.json', 'r')
+        loaded_model_json = json_file.read()
+        json_file.close()
+        model = model_from_json(loaded_model_json)
+
+        return model
+
+    def repair(self, diseases, tuning_logs):
         '''
         Method for fix the issues
         :return: new hp_space and new model
         '''
-        if "overfitting" in self.diseases:
-            self.tuning_logs.write("Applied regulatization and batch normalization after activation\n")
-            for l in self.model.layers:
+        model = self.reload_model()
+        if "overfitting" in diseases:
+            tuning_logs.write("Applied regulatization and batch normalization after activation\n")
+            for l in model.layers:
                 if 'conv' in l.name:
                     l.kernel_regularize = reg.l2(self.weight_decay)
                     new_hp = {'regularization': self.weight_decay}
                     self.space = self.ss.add_params(new_hp)
 
-            self.model = self.insert_layer(self.model, '.*activation.*')
-            print("I've try to fix OVERFITTING\n")
-        if "underfitting" in self.diseases:
+            model = self.insert_layer(model, '.*activation.*')
+            print("I've try to fix OVERFITTING by adding regularization and batch normalization\n")
+            model_json = model.to_json()
+            model_name = "Model/model.json"
+            with open(model_name, 'w') as json_file:
+                json_file.write(model_json)
+        if "underfitting" in diseases:
             prob = ra.random()
             if prob <= 0.5:
-                for hp in self.space:
-                    if hp.name == 'learning_rate':
-                        hp.high = hp.high / 10 ** 1.5
-                print("I've try to fix UNDERFITTING\n")
-            else:
+                self.count_lr += 1
+                if self.count_lr < 3:
+                    for hp in self.space:
+                        if hp.name == 'learning_rate':
+                            hp.high = hp.high / 10 ** 1.5
+                    tuning_logs.write("I've try to fix UNDERFITTING decreasing the learning_rate\n")
+            if prob > 0.5:
                 for hp in self.space:
                     if 'unit' in hp.name:
-                        hp.low = int(hp.low + ((hp.high - hp.low)/2))
+                        hp.low = int(hp.low + ((hp.high - hp.low) / 2))
+                        tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
             # add new layers or neurons
             # extend training epochs
-        return self.space, self.model
+        return self.space, model

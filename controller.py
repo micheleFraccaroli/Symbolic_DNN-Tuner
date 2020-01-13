@@ -1,5 +1,3 @@
-import sys
-from tensorflow.keras import backend as K
 from neural_network import neural_network
 from diagnosis import diagnosis
 from tuning_rules import tuning_rules
@@ -8,15 +6,15 @@ from search_space import search_space
 
 
 class controller:
-    def __init__(self, X_train, Y_train, X_test, Y_test, n_classes, first_params):
+    def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
         self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
-        self.model = self.nn.build_network(first_params)
-        # self.X_test = X_test[:6000]
-        # self.Y_test = Y_test[:600]
-        self.issues = []
+        self.d = diagnosis()
         self.ss = search_space()
         self.space = self.ss.search_sp()
+        self.tr = tuning_rules(self.space, self.ss)
+        self.issues = []
         self.new = None
+        self.model = None
 
     def set_case(self, new):
         self.new = new
@@ -29,7 +27,7 @@ class controller:
         '''
 
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
-        self.score, self.history = self.nn.training(params, self.model, self.new)
+        self.score, self.history = self.nn.training(params, self.new)
         #self.score = self.model.evaluate(self.X_test, self.Y_test)
 
         return -self.score[1]
@@ -41,16 +39,15 @@ class controller:
         '''
         print(colors.CYAN, "| START DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
         diagnosis_logs = open("algorithm_logs/diagnosis_logs.txt", "a")
-        d = diagnosis(self.history, diagnosis_logs, self.score)
-        self.issues = d.diagnosis()
+        self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs)
         diagnosis_logs.close()
         print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
         if self.issues:
-            self.space, self.model, to_optimize = self.tuning()
-            return self.space, self.model, to_optimize
+            self.space, to_optimize, self.model = self.tuning()
+            return self.space, to_optimize
         else:
-            return self.space, self.model, -self.score[1]
+            return self.space, -self.score[1]
 
     def tuning(self):
         '''
@@ -59,10 +56,9 @@ class controller:
         '''
         print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
         tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
-        tr = tuning_rules(self.issues, self.space, self.ss, tuning_logs, self.model)
-        new_space, new_model = tr.repair()
+        new_space, self.model = self.tr.repair(self.issues, tuning_logs)
         tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)
-        #K.clear_session()
-        return new_space, new_model, -self.score[1]
+
+        return new_space, -self.score[1], self.model

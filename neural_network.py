@@ -1,19 +1,21 @@
+from time import time
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input, BatchNormalization)
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras import backend as K
+from tensorflow.keras.models import model_from_json
 from dataset.cifar_dataset import cifar_data
 
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:10000]
-        self.train_labels = Y_train[:10000]
-        self.test_data = X_test[:6000]
-        self.test_labels = Y_test[:6000]
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.n_classes = n_classes
-        self.epochs = 30
+        self.epochs = 10
         self.batch_size = 32
 
     def build_network(self, params):
@@ -45,27 +47,33 @@ class neural_network:
 
         model = Model(inputs=inputs, outputs=x)
 
+        model_json = model.to_json()
+        model_name = "Model/model.json"
+        with open(model_name, 'w') as json_file:
+            json_file.write(model_json)
+
         return model
 
-    def training(self, params, model, new):
+    def training(self, params, new):
         '''
         Function for compiling and running training
         :return: training history
         '''
-
         print("\n-----------------------------------------------------------\n")
         print(params)
         print("\n-----------------------------------------------------------\n")
 
+        if not new:
+            model = self.build_network(params)
+
         print(model.summary())
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}".format(params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
 
         # compiling and training
-        if new:
-            adam = Adam(lr=params['learning_rate'])
-            model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+        adam = Adam(lr=params['learning_rate'])
+        model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
 
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
@@ -77,8 +85,11 @@ class neural_network:
                             validation_data=(self.test_data, self.test_labels),
                             callbacks=[tensorboard]).history
         score = model.evaluate(self.test_data, self.test_labels)
-        # K.clear_session()
+        weights_name = "Weights/weights.h5"
+        model.save_weights(weights_name)
+
         del model
+        K.clear_session()
         return score, history
 
 
@@ -86,14 +97,14 @@ if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
     default_params = {
-        'unit_c1': 64,
-        'dr1_2': 0.25,
-        'unit_c2': 96,
-        'unit_d': 512,
-        'dr_f': 0.5,
-        'learning_rate': 0.002
+        'unit_c1': 60,
+        'dr1_2': 0.2711402518916513,
+        'unit_c2': 122,
+        'unit_d': 468,
+        'dr_f': 0.32539470123672154,
+        'learning_rate': 0.0016026484957360283
     }
 
     n = neural_network(X_train, Y_train, X_test, Y_test,n_classes)
-    model = n.build_network(default_params)
-    score, history = n.training(default_params, model, True)
+    #model = n.build_network(default_params)
+    score, history = n.training(default_params, False)
