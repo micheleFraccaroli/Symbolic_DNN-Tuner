@@ -37,7 +37,7 @@ def objective(params):
     f.write(str(space) + "\n")
     to_optimize = controller.training(space)
     f.close()
-    K.clear_session()
+    #K.clear_session()
     return to_optimize
 
 
@@ -59,24 +59,25 @@ def start(search_space, iter):
     search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
                              callback=[checkpoint_saver])
     new_space, to_optimize = start_analisys()
+    K.clear_session()
 
     for opt in tqdm(range(iter)):
         # restore checkpoint
         if len(new_space) == len(search_space):
-            controller.set_case(False)
+            controller.set_case(True)
             res = load('checkpoints/checkpoint.pkl')
             try:
                 search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
-                                         n_calls=5,
+                                         n_calls=1,
                                          n_random_starts=1, callback=[checkpoint_saver])
             except:
                 search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI',
-                                         n_calls=5,
+                                         n_calls=1,
                                          n_random_starts=1, callback=[checkpoint_saver])
         else:
             controller.set_case(True)
             search_space = new_space
-            search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_random_starts=1,
+            search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=5, n_random_starts=1,
                                      callback=[checkpoint_saver])
         new_space, to_optimize = start_analisys()
 

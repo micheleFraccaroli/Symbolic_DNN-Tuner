@@ -3,7 +3,7 @@ import random as ra
 from tensorflow.keras import Model
 from tensorflow.keras import regularizers as reg
 from tensorflow.keras.layers import *
-from tensorflow.keras.models import model_from_json
+
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 
@@ -13,6 +13,7 @@ class tuning_rules:
         self.ss = ss
         self.weight_decay = 1e-4
         self.count_lr = 0
+        self.count_br = 0
 
     def insert_layer(self, model, layer_regex, position='after'):
         # Auxiliary dictionary to describe the network graph
@@ -77,19 +78,21 @@ class tuning_rules:
         '''
         # model = self.reload_model()
         if "overfitting" in diseases:
-            tuning_logs.write("Applied regulatization and batch normalization after activation\n")
-            for l in model.layers:
-                if 'conv' in l.name:
-                    l.kernel_regularize = reg.l2(self.weight_decay)
-                    new_hp = {'regularization': self.weight_decay}
-                    self.space = self.ss.add_params(new_hp)
+            self.count_br += 1
+            if self.count_br <= 1:
+                tuning_logs.write("Applied regulatization and batch normalization after activation\n")
+                for l in model.layers:
+                    if 'conv' in l.name:
+                        l.kernel_regularizer = reg.l2(self.weight_decay)
+                        #new_hp = {'regularization': self.weight_decay}
+                        #self.space = self.ss.add_params(new_hp)
 
-            model = self.insert_layer(model, '.*activation.*')
-            print("I've try to fix OVERFITTING by adding regularization and batch normalization\n")
-            model_json = model.to_json()
-            model_name = "Model/model.json"
-            with open(model_name, 'w') as json_file:
-                json_file.write(model_json)
+                model = self.insert_layer(model, '.*activation.*')
+                print("I've try to fix OVERFITTING by adding regularization and batch normalization\n")
+                model_json = model.to_json()
+                model_name = "Model/model.json"
+                with open(model_name, 'w') as json_file:
+                    json_file.write(model_json)
         if "underfitting" in diseases:
             prob = ra.random()
             if prob <= 0.5:
