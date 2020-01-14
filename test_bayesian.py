@@ -20,6 +20,7 @@ search_space = [
 @use_named_args(search_space)
 def objective(**params):
     f = open("hyperparameters.txt", "a")
+    f.write(str(params))
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
     score, history, model = n.training(params, False)
     f.close()
@@ -27,7 +28,7 @@ def objective(**params):
 
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
-checkpoint_saver = CheckpointSaver("    checkpoints/checkpoint.pkl", compress=9)
+checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
 
 # optimization
 search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_random_starts=1,
