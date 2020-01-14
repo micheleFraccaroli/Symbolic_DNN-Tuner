@@ -8,3 +8,6 @@ test/logs/
 __pycache__
 Weights
 Model
+logs2
+logs_hyperopt
+logs_test

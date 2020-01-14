@@ -13,6 +13,10 @@ class neural_network:
         self.train_labels = Y_train[:1000]
         self.test_data = X_test[:600]
         self.test_labels = Y_test[:600]
+        self.train_data = self.train_data.astype('float32')
+        self.test_data = self.test_data.astype('float32')
+        self.train_data /= 255
+        self.test_data /= 255
         self.n_classes = n_classes
         self.epochs = 10
         self.batch_size = 32
@@ -61,6 +65,7 @@ class neural_network:
         print("\n-----------------------------------------------------------\n")
         print(params)
         print("\n-----------------------------------------------------------\n")
+        model = None
 
         if not new:
             model = self.build_network(params)
@@ -68,16 +73,11 @@ class neural_network:
         print(model.summary())
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs_test/{}-{}".format(params['learning_rate'], time()))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-
-        self.train_data = self.train_data.astype('float32')
-        self.test_data = self.test_data.astype('float32')
-        self.train_data /= 255
-        self.test_data /= 255
 
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=self.batch_size,
                             verbose=1,
@@ -88,14 +88,15 @@ class neural_network:
         model.save_weights(weights_name)
 
         #del model
-        K.clear_session()
+        #K.clear_session()
+
         return score, history, model
 
 
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 57, 'dr1_2': 0.16634817645107544, 'unit_c2': 123, 'unit_d': 473, 'dr_f': 0.28647119015007716, 'learning_rate': 1.4987722639743674e-05}
+    default_params = {'unit_c1': 64, 'dr1_2': 0.27388076426452224, 'unit_c2': 124, 'unit_d': 505, 'dr_f': 0.4033067277510234, 'learning_rate': 9.426807887713249e-05}
 
     n = neural_network(X_train, Y_train, X_test, Y_test,n_classes)
     #model = n.build_network(default_params)

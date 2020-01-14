@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from neural_network import neural_network
 from diagnosis import diagnosis
 from tuning_rules import tuning_rules
