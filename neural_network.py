@@ -4,7 +4,6 @@ from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras import backend as K
-from tensorflow.keras.models import model_from_json
 from dataset.cifar_dataset import cifar_data
 
 
@@ -69,7 +68,7 @@ class neural_network:
         print(model.summary())
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
+        tensorboard = TensorBoard(log_dir="logs_test/{}-{}".format(params['learning_rate'], time()))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
@@ -96,14 +95,7 @@ class neural_network:
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {
-        'unit_c1': 60,
-        'dr1_2': 0.2711402518916513,
-        'unit_c2': 122,
-        'unit_d': 468,
-        'dr_f': 0.32539470123672154,
-        'learning_rate': 0.0016026484957360283
-    }
+    default_params = {'unit_c1': 57, 'dr1_2': 0.16634817645107544, 'unit_c2': 123, 'unit_d': 473, 'dr_f': 0.28647119015007716, 'learning_rate': 1.4987722639743674e-05}
 
     n = neural_network(X_train, Y_train, X_test, Y_test,n_classes)
     #model = n.build_network(default_params)
