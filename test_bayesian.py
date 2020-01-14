@@ -21,7 +21,7 @@ search_space = [
 def objective(**params):
     f = open("hyperparameters.txt", "a")
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
-    model, history = n.training(params)
+    model, history = n.training(params, False)
     score = model.evaluate(X_test, Y_test)
     f.close()
     return -score[1]
