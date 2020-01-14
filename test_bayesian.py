@@ -27,7 +27,7 @@ def objective(**params):
 
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
-checkpoint_saver = CheckpointSaver("../checkpoints/checkpoint.pkl", compress=9)
+checkpoint_saver = CheckpointSaver("    checkpoints/checkpoint.pkl", compress=9)
 
 # optimization
 search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_random_starts=1,
