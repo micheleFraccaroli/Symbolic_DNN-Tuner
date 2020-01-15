@@ -6,6 +6,9 @@ class diagnosis:
         self.epsilon_1 = 0.35
         self.epsilon_2 = 0.45
 
+    def reset_diagnosis(self):
+        self.issues = []
+
     def diagnosis(self, history, score, diagnosis_logs):
         '''
         this function take history and result of the model for make a diagnosis
@@ -33,7 +36,6 @@ class diagnosis:
         '''
         some diagnosis to be implemented
         '''
-
         diagnosis_logs.write(str(self.issues))
         print(" I've found: " + str(self.issues) + "\n")
         return self.issues

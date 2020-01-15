@@ -8,7 +8,6 @@ from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.models import model_from_json
 from dataset.cifar_dataset import cifar_data
 
-
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
         self.train_data = X_train[:1000]
@@ -94,7 +93,7 @@ class neural_network:
 
         return result_model
 
-    def training(self, params, new):
+    def training(self, params, new, ):
         '''
         Function for compiling and running training
         :return: training history

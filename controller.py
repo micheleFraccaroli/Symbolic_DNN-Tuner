@@ -41,6 +41,7 @@ class controller:
         '''
         print(colors.CYAN, "| START DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
         diagnosis_logs = open("algorithm_logs/diagnosis_logs.txt", "a")
+        self.d.reset_diagnosis()
         self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs)
         diagnosis_logs.close()
         print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
@@ -58,7 +59,7 @@ class controller:
         '''
         print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
         tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
-        new_space, self.model = self.tr.repair(self.issues, tuning_logs, self.model)
+        new_space, self.model = self.tr.repair(self, self.issues, tuning_logs, self.model)
         tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)

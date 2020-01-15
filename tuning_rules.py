@@ -71,7 +71,7 @@ class tuning_rules:
     #
     #     return model
 
-    def repair(self, diseases, tuning_logs, model):
+    def repair(self, controller, diseases, tuning_logs, model):
         '''
         Method for fix the issues
         :return: new hp_space and new model
@@ -93,6 +93,7 @@ class tuning_rules:
                 model_name = "Model/model.json"
                 with open(model_name, 'w') as json_file:
                     json_file.write(model_json)
+                controller.set_case(True)
         if "underfitting" in diseases:
             prob = ra.random()
             if prob <= 0.5:

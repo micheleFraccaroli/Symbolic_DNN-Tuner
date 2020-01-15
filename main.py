@@ -61,10 +61,10 @@ def start(search_space, iter):
     new_space, to_optimize = start_analisys()
     K.clear_session()
 
-    for opt in tqdm(range(iter)):
+    for opt in range(iter):
         # restore checkpoint
         if len(new_space) == len(search_space):
-            controller.set_case(True)
+            # controller.set_case(True)
             res = load('checkpoints/checkpoint.pkl')
             try:
                 search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
