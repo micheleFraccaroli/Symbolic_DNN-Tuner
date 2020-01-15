@@ -59,9 +59,10 @@ def start(search_space, iter):
     search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
                              callback=[checkpoint_saver])
     new_space, to_optimize = start_analisys()
-    K.clear_session()
 
     for opt in range(iter):
+        # clear keras session
+        K.clear_session()
         # restore checkpoint
         if len(new_space) == len(search_space):
             # controller.set_case(True)

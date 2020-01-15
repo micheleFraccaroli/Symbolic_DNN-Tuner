@@ -33,4 +33,4 @@ def objective(params):
 
 
 trials = Trials()
-best = fmin(objective, default_params, algo=tpe.suggest, max_evals=6, trials=trials)
+best = fmin(objective, default_params, algo=tpe.suggest, max_evals=16, trials=trials)
