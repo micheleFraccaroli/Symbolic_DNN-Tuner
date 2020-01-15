@@ -2,6 +2,7 @@ from neural_network import neural_network
 from tensorflow.keras import backend as K
 from dataset.cifar_dataset import cifar_data
 import sys
+import time
 
 from hyperopt import space_eval
 from hyperopt import fmin, tpe, hp, Trials
@@ -17,7 +18,7 @@ default_params = {
     'dr_f': hp.uniform('dr_f', 0.03, 0.5),
     'learning_rate': hp.uniform('learning_rate', 10 ** -5, 10 ** -1),
 }
-
+start_time = time.time()
 
 def objective(params):
     params['unit_c1'] = int(params['unit_c1'])
@@ -34,3 +35,7 @@ def objective(params):
 
 trials = Trials()
 best = fmin(objective, default_params, algo=tpe.suggest, max_evals=16, trials=trials)
+end_time = time.time()
+
+print("TIME: ")
+print(end_time - start_time)
