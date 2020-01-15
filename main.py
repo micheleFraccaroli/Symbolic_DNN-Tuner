@@ -1,5 +1,6 @@
 import datetime
 import sys
+import time
 
 from skopt import gp_minimize
 from skopt import load
@@ -27,7 +28,7 @@ controller = controller(X_train, Y_train, X_test, Y_test, n_classes)
 
 # objective function
 space = {}
-
+start_time = time.time()
 
 def objective(params):
     for i, j in zip(search_space, params):
@@ -87,3 +88,7 @@ def start(search_space, iter):
 print(colors.OKGREEN, "\nSTART ALGORITHM \n", colors.ENDC)
 search_res = start(search_space, max_evals)
 print(search_res)
+print(colors.OKGREEN, "\nEND ALGORITHM \n", colors.ENDC)
+end_time = time.time()
+
+print(colors.CYAN, "\nTIME --------> \n", end_time-start_time, colors.ENDC)
