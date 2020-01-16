@@ -71,6 +71,7 @@ def start(search_space, iter):
                 search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
                                          n_random_starts=1, callback=[checkpoint_saver])
+                print("Inside BO\n")
             except:
                 search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,

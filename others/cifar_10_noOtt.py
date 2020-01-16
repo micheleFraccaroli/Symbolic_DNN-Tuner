@@ -10,7 +10,7 @@ import os
 
 batch_size = 128
 num_classes = 10
-epochs = 75
+epochs = 10
 
 # The data, split between train and test sets:
 (x_train, y_train), (x_test, y_test) = cifar10.load_data()
@@ -30,25 +30,26 @@ print(y_test.shape)
 
 model = Sequential()
 model.add(Conv2D(32, (3, 3), padding='same',
-                 input_shape=x_train.shape[1:]))
+                 input_shape=x_train.shape[1:], kernel_initializer='he_normal'))
 model.add(Activation('relu'))
-model.add(Conv2D(32, (3, 3)))
+model.add(Conv2D(32, (3, 3), kernel_initializer='he_normal'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
-model.add(Conv2D(64, (3, 3), padding='same'))
+model.add(Conv2D(64, (3, 3), padding='same',
+          kernel_initializer='he_normal'))
 model.add(Activation('relu'))
-model.add(Conv2D(64, (3, 3)))
+model.add(Conv2D(64, (3, 3), kernel_initializer='he_normal'))
 model.add(Activation('relu'))
 model.add(MaxPooling2D(pool_size=(2, 2)))
 model.add(Dropout(0.25))
 
 model.add(Flatten())
-model.add(Dense(512))
+model.add(Dense(512, kernel_initializer='he_normal'))
 model.add(Activation('relu'))
 model.add(Dropout(0.5))
-model.add(Dense(num_classes))
+model.add(Dense(num_classes, kernel_initializer='he_normal'))
 model.add(Activation('softmax'))
 
 # initiate RMSprop optimizer
@@ -64,11 +65,11 @@ x_test = x_test.astype('float32')
 x_train /= 255
 x_test /= 255
 
-tensorboard = TensorBoard(log_dir="logs/cifar10_NO_optAAA")
+tensorboard = TensorBoard(log_dir="../logs_exp_ini/cifar10_NO_optAAA")
 
-model.fit(x_train, y_train,
+model.fit(x_train[:10000], y_train[:10000],
           batch_size=batch_size,
           epochs=epochs,
-          validation_data=(x_test, y_test),
+          validation_data=(x_test[:6000], y_test[:6000]),
           shuffle=True, callbacks=[tensorboard])
 
