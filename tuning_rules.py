@@ -18,7 +18,6 @@ class tuning_rules:
     def insert_layer(self, model, layer_regex, position='after'):
         # Auxiliary dictionary to describe the network graph
         network_dict = {'input_layers_of': {}, 'new_output_tensor_of': {}}
-
         # Set the input layers of each layer
         for layer in model.layers:
             for node in layer.outbound_nodes:
@@ -60,8 +59,9 @@ class tuning_rules:
 
             # Set new output tensor (the original one, or the one of the inserted layer)
             network_dict['new_output_tensor_of'].update({layer.name: x})
-
-        return Model(inputs=model.inputs, outputs=x)
+        input = model.inputs
+        del model
+        return Model(inputs=input, outputs=x)
 
     # def reload_model(self):
     #     json_file = open('Model/model.json', 'r')
@@ -84,8 +84,6 @@ class tuning_rules:
                 for l in model.layers:
                     if 'conv' in l.name:
                         l.kernel_regularizer = reg.l2(self.weight_decay)
-                        #new_hp = {'regularization': self.weight_decay}
-                        #self.space = self.ss.add_params(new_hp)
 
                 model = self.insert_layer(model, '.*activation.*')
                 print("I've try to fix OVERFITTING by adding regularization and batch normalization\n")

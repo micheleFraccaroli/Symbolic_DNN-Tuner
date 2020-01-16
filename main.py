@@ -59,7 +59,7 @@ def start(search_space, iter):
     controller.set_case(False)
     search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
                              callback=[checkpoint_saver])
-    K.clear_session()
+    #K.clear_session()
     new_space, to_optimize = start_analisys()
 
     for opt in range(iter):

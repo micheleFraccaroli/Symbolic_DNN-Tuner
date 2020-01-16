@@ -29,7 +29,7 @@ class controller:
         '''
 
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
-        self.model = None
+        del self.model
         self.score, self.history, self.model = self.nn.training(params, self.new)
         #self.score = self.model.evaluate(self.X_test, self.Y_test)
 
