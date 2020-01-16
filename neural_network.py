@@ -128,9 +128,6 @@ class neural_network:
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
 
-        del model
-        # K.clear_session()
-
         return score, history, model
 
 
