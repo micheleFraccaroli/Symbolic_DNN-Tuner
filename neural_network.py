@@ -19,7 +19,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 30
+        self.epochs = 10
         self.batch_size = 32
 
     def build_network(self, params, new):

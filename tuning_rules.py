@@ -15,6 +15,7 @@ class tuning_rules:
         self.count_lr = 0
         self.count_br = 0
 
+
     def insert_layer(self, model, layer_regex, position='after'):
         # Auxiliary dictionary to describe the network graph
         network_dict = {'input_layers_of': {}, 'new_output_tensor_of': {}}
@@ -76,7 +77,7 @@ class tuning_rules:
         Method for fix the issues
         :return: new hp_space and new model
         '''
-        # model = self.reload_model()
+        del controller.model
         if "overfitting" in diseases:
             self.count_br += 1
             if self.count_br <= 1:
