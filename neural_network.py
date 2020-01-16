@@ -7,6 +7,7 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.models import model_from_json
 from dataset.cifar_dataset import cifar_data
+from tensorflow.keras import regularizers
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
@@ -29,22 +30,27 @@ class neural_network:
         '''
 
         inputs = Input((self.train_data.shape[1:]))
-        x = Conv2D(params['unit_c1'], (3, 3), padding='same')(inputs)
+        x = Conv2D(params['unit_c1'], (3, 3), padding='same', kernel_regularizer=regularizers.l2(1e-4))(inputs)
         x = Activation('relu')(x)
-        x = Conv2D(params['unit_c1'], (3, 3))(x)
+        x = BatchNormalization()(x)
+        x = Conv2D(params['unit_c1'], (3, 3),kernel_regularizer=regularizers.l2(1e-4))(x)
         x = Activation('relu')(x)
+        x = BatchNormalization()(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
 
-        x = Conv2D(params['unit_c2'], (3, 3), padding='same')(x)
+        x = Conv2D(params['unit_c2'], (3, 3), padding='same',kernel_regularizer=regularizers.l2(1e-4))(x)
         x = Activation('relu')(x)
-        x = Conv2D(params['unit_c2'], (3, 3))(x)
+        x = BatchNormalization()(x)
+        x = Conv2D(params['unit_c2'], (3, 3),kernel_regularizer=regularizers.l2(1e-4))(x)
         x = Activation('relu')(x)
+        x = BatchNormalization()(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
         x = Dropout(params['dr1_2'])(x)
 
         x = Flatten()(x)
         x = Dense(params['unit_d'])(x)
         x = Activation('relu')(x)
+        x = BatchNormalization()(x)
         x = Dropout(params['dr_f'])(x)
         x = Dense(self.n_classes)(x)
         x = Activation('softmax')(x)
