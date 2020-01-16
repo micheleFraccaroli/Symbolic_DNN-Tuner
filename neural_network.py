@@ -30,27 +30,22 @@ class neural_network:
         '''
 
         inputs = Input((self.train_data.shape[1:]))
-        x = Conv2D(params['unit_c1'], (3, 3), padding='same', kernel_regularizer=regularizers.l2(1e-4))(inputs)
+        x = Conv2D(params['unit_c1'], (3, 3), padding='same')(inputs)
         x = Activation('relu')(x)
-        x = BatchNormalization()(x)
-        x = Conv2D(params['unit_c1'], (3, 3),kernel_regularizer=regularizers.l2(1e-4))(x)
+        x = Conv2D(params['unit_c1'], (3, 3))(x)
         x = Activation('relu')(x)
-        x = BatchNormalization()(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
 
-        x = Conv2D(params['unit_c2'], (3, 3), padding='same',kernel_regularizer=regularizers.l2(1e-4))(x)
+        x = Conv2D(params['unit_c2'], (3, 3), padding='same')(x)
         x = Activation('relu')(x)
-        x = BatchNormalization()(x)
-        x = Conv2D(params['unit_c2'], (3, 3),kernel_regularizer=regularizers.l2(1e-4))(x)
+        x = Conv2D(params['unit_c2'], (3, 3))(x)
         x = Activation('relu')(x)
-        x = BatchNormalization()(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
         x = Dropout(params['dr1_2'])(x)
 
         x = Flatten()(x)
         x = Dense(params['unit_d'])(x)
         x = Activation('relu')(x)
-        x = BatchNormalization()(x)
         x = Dropout(params['dr_f'])(x)
         x = Dense(self.n_classes)(x)
         x = Activation('softmax')(x)
@@ -91,6 +86,8 @@ class neural_network:
                 # else:
                 #     x = j(x)
                 #     x = i(x)
+        del old_model
+        del new_model
         result_model = Model(inputs=inputs, outputs=x)
         model_json = result_model.to_json()
         model_name = "Model/model.json"
