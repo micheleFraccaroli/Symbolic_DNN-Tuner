@@ -34,7 +34,7 @@ X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
 
 # optimization
-search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=15, n_random_starts=1,
+search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=20, n_random_starts=1,
                          callback=[checkpoint_saver])
 
 print(search_res)
