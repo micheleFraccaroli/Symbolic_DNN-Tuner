@@ -1,5 +1,6 @@
 import platform
 
+
 class diagnosis:
     def __init__(self):
         self.issues = []
@@ -22,8 +23,8 @@ class diagnosis:
         else:
             metric = 'accuracy'
 
-        last_training_acc = history[metric][len(history[metric])-1]
-        last_training_loss = history['loss'][len(history['loss'])-1]
+        last_training_acc = history[metric][len(history[metric]) - 1]
+        last_training_loss = history['loss'][len(history['loss']) - 1]
 
         if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
                 last_training_loss - score[0]) > self.epsilon_1:

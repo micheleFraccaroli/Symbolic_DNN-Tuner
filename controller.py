@@ -5,6 +5,7 @@ from diagnosis import diagnosis
 from tuning_rules import tuning_rules
 from colors import colors
 from search_space import search_space
+from tensorflow.keras import backend as K
 
 
 class controller:
@@ -17,6 +18,7 @@ class controller:
         self.issues = []
         self.new = None
         self.model = None
+        self.params = None
 
     def set_case(self, new):
         self.new = new
@@ -27,11 +29,11 @@ class controller:
         training(Train, Labels_train, Test, Label_test)
         :return: model and training history
         '''
-
+        self.params = params
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         del self.model
+        K.clear_session()
         self.score, self.history, self.model = self.nn.training(params, self.new)
-        #self.score = self.model.evaluate(self.X_test, self.Y_test)
 
         return -self.score[1]
 
@@ -60,7 +62,7 @@ class controller:
         '''
         print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
         tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
-        new_space, self.model = self.tr.repair(self, self.issues, tuning_logs, self.model)
+        new_space, self.model = self.tr.repair(self, self.issues, tuning_logs, self.model, self.params)
         tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)

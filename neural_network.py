@@ -7,21 +7,23 @@ from tensorflow.keras.optimizers import Adam
 from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.models import model_from_json
 from dataset.cifar_dataset import cifar_data
+from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers
+
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:10000]
-        self.train_labels = Y_train[:10000]
-        self.test_data = X_test[:6000]
-        self.test_labels = Y_test[:6000]
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
         self.epochs = 10
-        self.batch_size = 32
+        # self.batch_size = 96
 
     def build_network(self, params, new):
         '''
@@ -117,13 +119,13 @@ class neural_network:
         print(model.summary())
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
+        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(params['learning_rate'], time()))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
 
-        history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=self.batch_size,
+        history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                             verbose=1,
                             validation_data=(self.test_data, self.test_labels),
                             callbacks=[tensorboard]).history
@@ -131,6 +133,7 @@ class neural_network:
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
 
+        K.clear_session()
         return score, history, model
 
 
@@ -138,8 +141,8 @@ if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
     default_params = {'unit_c1': 64, 'dr1_2': 0.27388076426452224, 'unit_c2': 124, 'unit_d': 505,
-                      'dr_f': 0.4033067277510234, 'learning_rate': 9.426807887713249e-05}
+                      'dr_f': 0.4033067277510234, 'learning_rate': 9.426807887713249e-05, 'batch_size': 32}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
-    # model = n.build_network(default_params)
+
     score, history, model = n.training(default_params, False)

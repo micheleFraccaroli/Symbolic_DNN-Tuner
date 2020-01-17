@@ -1,5 +1,6 @@
 from skopt.space import Integer, Real
 
+
 class search_space:
     def __init__(self):
         self.epsilon_r = 0.3
@@ -12,7 +13,8 @@ class search_space:
             Integer(64, 128, name='unit_c2'),
             Integer(256, 512, name='unit_d'),
             Real(0.03, 0.5, name='dr_f'),
-            Real(10 ** -5, 10 ** -1, name='learning_rate')
+            Real(10 ** -5, 10 ** -1, name='learning_rate'),
+            Integer(16, 128, name='batch_size'),
         ]
 
         return self.search_space

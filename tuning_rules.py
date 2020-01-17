@@ -4,8 +4,6 @@ from tensorflow.keras import Model
 from tensorflow.keras import regularizers as reg
 from tensorflow.keras.layers import *
 
-from tensorflow.keras.preprocessing.image import ImageDataGenerator
-
 
 class tuning_rules:
     def __init__(self, params, ss):
@@ -14,7 +12,6 @@ class tuning_rules:
         self.weight_decay = 1e-4
         self.count_lr = 0
         self.count_br = 0
-
 
     def insert_layer(self, model, layer_regex, position='after'):
         # Auxiliary dictionary to describe the network graph
@@ -64,15 +61,7 @@ class tuning_rules:
         del model
         return Model(inputs=input, outputs=x)
 
-    # def reload_model(self):
-    #     json_file = open('Model/model.json', 'r')
-    #     loaded_model_json = json_file.read()
-    #     json_file.close()
-    #     model = model_from_json(loaded_model_json)
-    #
-    #     return model
-
-    def repair(self, controller, diseases, tuning_logs, model):
+    def repair(self, controller, diseases, tuning_logs, model, params):
         '''
         Method for fix the issues
         :return: new hp_space and new model
@@ -100,13 +89,18 @@ class tuning_rules:
                 if self.count_lr < 3:
                     for hp in self.space:
                         if hp.name == 'learning_rate':
-                            hp.high = hp.high / 10 ** 1.5
+                            hp.high = params['learning_rate']
                     tuning_logs.write("I've try to fix UNDERFITTING decreasing the learning_rate\n")
             if prob > 0.5:
                 for hp in self.space:
-                    if 'unit' in hp.name:
-                        hp.low = int(hp.low + ((hp.high - hp.low) / 2))
-                        tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
-            # add new layers or neurons
-            # extend training epochs
+                    if 'unit_c1' in hp.name:
+                        hp.low = params['unit_c1']
+                        # hp.low = int(hp.low + ((hp.high - hp.low) / 2))
+                    if 'unit_c2' in hp.name:
+                        hp.low = params['unit_c2']
+                    if 'unit_d' in hp.name:
+                        hp.low = params['unit_d']
+
+                    tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
+
         return self.space, model
