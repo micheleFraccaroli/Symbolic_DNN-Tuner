@@ -8,4 +8,4 @@
 #SBATCH --partition=gll_usr_gpuprod
 #SBATCH --gres=gpu:kepler:1
 
-python3 -W ignore test_bayesian.py
+python3 -W ignore hyper_opt_test.py
