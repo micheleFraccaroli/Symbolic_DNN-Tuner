@@ -13,7 +13,8 @@ search_space = [
     Integer(64, 128, name='unit_c2'),
     Integer(256, 512, name='unit_d'),
     Real(0.03, 0.5, name='dr_f'),
-    Real(10 ** -5, 10 ** -1, name='learning_rate')
+    Real(10 ** -5, 10 ** -1, name='learning_rate'),
+    Integer(16, 128, name='batch_size')
 ]
 
 
@@ -33,7 +34,7 @@ X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
 
 # optimization
-search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=6, n_random_starts=1,
+search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=15, n_random_starts=1,
                          callback=[checkpoint_saver])
 
 print(search_res)
