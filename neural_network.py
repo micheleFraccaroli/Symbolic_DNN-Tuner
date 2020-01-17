@@ -13,10 +13,10 @@ from tensorflow.keras import regularizers
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:10000]
-        self.train_labels = Y_train[:10000]
-        self.test_data = X_test[:6000]
-        self.test_labels = Y_test[:6000]
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
