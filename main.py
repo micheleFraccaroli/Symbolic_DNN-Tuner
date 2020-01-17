@@ -58,7 +58,7 @@ def start(search_space, iter):
     checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
     # optimization
     controller.set_case(False)
-    search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
+    search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=0,
                              callback=[checkpoint_saver])
     # K.clear_session()
     new_space, to_optimize = start_analisys()

@@ -94,12 +94,12 @@ class tuning_rules:
             if prob > 0.5:
                 for hp in self.space:
                     if 'unit_c1' in hp.name:
-                        hp.low = params['unit_c1']
+                        hp.low = params['unit_c1'] - 1
                         # hp.low = int(hp.low + ((hp.high - hp.low) / 2))
                     if 'unit_c2' in hp.name:
-                        hp.low = params['unit_c2']
+                        hp.low = params['unit_c2'] - 1
                     if 'unit_d' in hp.name:
-                        hp.low = params['unit_d']
+                        hp.low = params['unit_d'] - 1
 
                     tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
 
