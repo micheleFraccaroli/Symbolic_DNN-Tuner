@@ -71,12 +71,14 @@ def start(search_space, iter):
             try:
                 search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
-                                         n_random_starts=1, callback=[checkpoint_saver])
-                print("Inside BO\n")
+                                         n_random_starts=0, callback=[checkpoint_saver])
+                print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
+                print(colors.FAIL, "Inside BO\n", colors.ENDC)
+                print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
             except:
                 search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
-                                         n_random_starts=1, callback=[checkpoint_saver])
+                                         n_random_starts=0, callback=[checkpoint_saver])
         else:
             controller.set_case(True)
             search_space = new_space
