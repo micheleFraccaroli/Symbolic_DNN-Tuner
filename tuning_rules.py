@@ -89,7 +89,7 @@ class tuning_rules:
                 if self.count_lr < 3:
                     for hp in self.space:
                         if hp.name == 'learning_rate':
-                            hp.high = params['learning_rate']
+                            hp.high = params['learning_rate'] + (params['learning_rate']/2)
                     tuning_logs.write("I've try to fix UNDERFITTING decreasing the learning_rate\n")
             if prob > 0.5:
                 for hp in self.space:
