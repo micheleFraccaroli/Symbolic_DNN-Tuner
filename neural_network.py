@@ -98,7 +98,7 @@ class neural_network:
 
         return result_model
 
-    def training(self, params, new, ):
+    def training(self, params, new):
         '''
         Function for compiling and running training
         :return: training history
@@ -119,7 +119,7 @@ class neural_network:
         print(model.summary())
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(params['learning_rate'], time()))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
