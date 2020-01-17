@@ -119,7 +119,7 @@ class neural_network:
         print(model.summary())
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
+        tensorboard = TensorBoard(log_dir="logs_hyperopt/{}-{}".format(params['learning_rate'], time()))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])

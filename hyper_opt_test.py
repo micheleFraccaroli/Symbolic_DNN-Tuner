@@ -17,6 +17,7 @@ default_params = {
     'unit_d': hp.uniform('unit_d', 256, 512),
     'dr_f': hp.uniform('dr_f', 0.03, 0.5),
     'learning_rate': hp.uniform('learning_rate', 10 ** -5, 10 ** -1),
+    'batch_size': hp.uniform('batch_size', 16, 128),
 }
 start_time = time.time()
 
@@ -24,6 +25,7 @@ def objective(params):
     params['unit_c1'] = int(params['unit_c1'])
     params['unit_c2'] = int(params['unit_c2'])
     params['unit_d'] = int(params['unit_d'])
+    params['batch_size'] = int(params['batch_size'])
     f = open("hyperparameters.txt", "a")
     f.write(str(params))
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
