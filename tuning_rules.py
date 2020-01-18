@@ -85,23 +85,36 @@ class tuning_rules:
                 controller.set_case(True)
         if "underfitting" in diseases:
             prob = ra.random()
-            if prob <= 0.5:
+            if prob <= 0.3:
                 self.count_lr += 1
                 if self.count_lr < 3:
                     for hp in self.space:
                         if hp.name == 'learning_rate':
                             hp.high = params['learning_rate'] + (params['learning_rate']/2)
                     tuning_logs.write("I've try to fix UNDERFITTING decreasing the learning_rate\n")
-            if prob > 0.5:
+            else:
                 for hp in self.space:
                     if 'unit_c1' in hp.name:
                         hp.low = params['unit_c1'] - 1
-                        # hp.low = int(hp.low + ((hp.high - hp.low) / 2))
                     if 'unit_c2' in hp.name:
                         hp.low = params['unit_c2'] - 1
                     if 'unit_d' in hp.name:
                         hp.low = params['unit_d'] - 1
 
-                    tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
+                tuning_logs.write("I've try to fix UNDERFITTING increasing the number of the node per layers\n")
+
+        if "increasing_loss" in diseases:
+            for hp in self.space:
+                if hp.name == 'learning_rate':
+                    hp.high = params['learning_rate'] + (params['learning_rate'] / 2)
+
+            tuning_logs.write("I've try to fix INCREASING LOSS decreasing the learning_rate\n")
+
+        if "floating_loss" in diseases:
+            for hp in self.space:
+                if hp.name == 'batch_size':
+                    hp.low = params['batch_size'] - 1
+            tuning_logs.write("I've try to fix FLOATING LOSS increasing the batch size\n")
+
 
         return self.space, model

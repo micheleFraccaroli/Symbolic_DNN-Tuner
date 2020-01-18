@@ -1,4 +1,4 @@
-import platform
+from math import isclose
 
 
 class diagnosis:
@@ -6,9 +6,20 @@ class diagnosis:
         self.issues = []
         self.epsilon_1 = 0.35
         self.epsilon_2 = 0.45
+        self.weight = 0.6
 
     def reset_diagnosis(self):
         self.issues = []
+
+    def smooth(self, scalars):
+        last = scalars[0]
+        smoothed = list()
+        for point in scalars:
+            # Calculate smoothed value
+            smoothed_val = last * self.weight + (1 - self.weight) * point
+            smoothed.append(smoothed_val)
+            last = smoothed_val
+        return smoothed
 
     def diagnosis(self, history, score, diagnosis_logs):
         '''
@@ -18,10 +29,6 @@ class diagnosis:
         '''
 
         # overfitting | underfitting -----------------------------------------------------------------------------------
-        # if platform.system() == 'Darwin':
-        #    metric = 'acc'
-        # else:
-        #    metric = 'accuracy'
 
         last_training_acc = history['accuracy'][len(history['accuracy']) - 1]
         last_training_loss = history['loss'][len(history['loss']) - 1]
@@ -29,10 +36,34 @@ class diagnosis:
         if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
                 last_training_loss - score[0]) > self.epsilon_1:
             self.issues.append("overfitting")
-        if abs(history['loss'][len(history['val_loss']) - 1] - 1) > self.epsilon_2 or abs(last_training_loss - 1) > self.epsilon_2:
+        if abs(history['loss'][len(history['val_loss']) - 1] - 1) > self.epsilon_2 or abs(
+                last_training_loss - 1) > self.epsilon_2:
             self.issues.append("underfitting")
 
-        # other diagnosis ----------------------------------------------------------------------------------------------
+        # Increasing loss trend ----------------------------------------------------------------------------------------
+
+        smoothed_loss = self.smooth(history['loss'])
+        up = []
+        for e in smoothed_loss:
+            # check growing trend
+            if smoothed_loss[e] < smoothed_loss[e + 1]:
+                up.append(1)
+
+        growing = (int(len(up)) * 100) / len(history['loss'])
+        if growing > 50:
+            self.issues.append("increasing_loss")
+
+        # Floating loss ------------------------------------------------------------------------------------------------
+        up = []
+        down = []
+
+        for m, n in enumerate(smoothed_loss):
+            if smoothed_loss[m] < smoothed_loss[m+1]:
+                up.append(1)
+            else:
+                down.append(1)
+        if not isclose(len(up), len(down), abs_tol=10):
+            self.issues.append("floating_loss")
 
         '''
         some diagnosis to be implemented
