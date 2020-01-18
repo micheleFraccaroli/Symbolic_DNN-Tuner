@@ -10,7 +10,12 @@ from tensorflow.keras import backend as K
 
 class controller:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
+        # self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
+        self.X_train = X_train
+        self.Y_train = Y_train
+        self.X_test = X_test
+        self.Y_test = Y_test
+        self.n_classes = n_classes
         self.d = diagnosis()
         self.ss = search_space()
         self.space = self.ss.search_sp()
@@ -27,13 +32,13 @@ class controller:
         '''
         Training and tasting the neural network
         training(Train, Labels_train, Test, Label_test)
-        :return: model and training history
+        :return: model and training historyself.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
         '''
         self.params = params
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
-        del self.model
         K.clear_session()
-        self.score, self.history, self.model = self.nn.training(params, self.new)
+        self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
+        self.score, self.history, self.model = self.nn.training(params, self.new, self.model)
 
         return -self.score[1]
 

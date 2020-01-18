@@ -18,12 +18,12 @@ class diagnosis:
         '''
 
         # overfitting | underfitting -----------------------------------------------------------------------------------
-        if platform.system() == 'Darwin':
-            metric = 'acc'
-        else:
-            metric = 'accuracy'
+        # if platform.system() == 'Darwin':
+        #    metric = 'acc'
+        # else:
+        #    metric = 'accuracy'
 
-        last_training_acc = history[metric][len(history[metric]) - 1]
+        last_training_acc = history['accuracy'][len(history['accuracy']) - 1]
         last_training_loss = history['loss'][len(history['loss']) - 1]
 
         if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(

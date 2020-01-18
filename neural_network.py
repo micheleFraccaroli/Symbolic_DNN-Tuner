@@ -8,27 +8,50 @@ from tensorflow.keras.callbacks import TensorBoard
 from tensorflow.keras.models import model_from_json
 from dataset.cifar_dataset import cifar_data
 from tensorflow.keras import backend as K
-from tensorflow.keras import regularizers
+from tensorflow.keras import regularizers as reg
 
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:10000]
-        self.train_labels = Y_train[:10000]
-        self.test_data = X_test[:6000]
-        self.test_labels = Y_test[:6000]
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 30
+        self.epochs = 10
+        self.weight_decay = 1e-4
         # self.batch_size = 96
 
     def build_network(self, params, new):
         '''
         Function for define the network structure
         :return: model
+        '''
+        '''
+        inputs = Input((self.train_data.shape[1:]))
+        x = Conv2D(params['unit_c1'], (3, 3), padding='same', kernel_regularizer=reg.l2(1e-4))(inputs)
+        x = Activation('relu')(x)
+        x = Conv2D(params['unit_c1'], (3, 3), kernel_regularizer=reg.l2(1e-4))(x)
+        x = Activation('relu')(x)
+        x = MaxPooling2D(pool_size=(2, 2))(x)
+
+        x = Conv2D(params['unit_c2'], (3, 3), padding='same', kernel_regularizer=reg.l2(1e-4))(x)
+        x = Activation('relu')(x)
+        x = Conv2D(params['unit_c2'], (3, 3), kernel_regularizer=reg.l2(1e-4))(x)
+        x = Activation('relu')(x)
+        x = MaxPooling2D(pool_size=(2, 2))(x)
+        x = Dropout(params['dr1_2'])(x)
+
+        x = Flatten()(x)
+        x = Dense(params['unit_d'])(x)
+        x = Activation('relu')(x)
+        x = Dropout(params['dr_f'])(x)
+        x = Dense(self.n_classes)(x)
+        x = Activation('softmax')(x)
         '''
 
         inputs = Input((self.train_data.shape[1:]))
@@ -62,43 +85,93 @@ class neural_network:
 
         return model
 
-    def build_new(self, old_model, new_model):
-        inputs = Input((self.train_data.shape[1:]))
-        x = inputs
-        for i, j in zip(old_model.layers, new_model.layers):
-            old = " ".join(re.findall("[a-zA-Z]+", i.name))
-            new = " ".join(re.findall("[a-zA-Z]+", j.name))
-            if 'conv' in new:
-                regularizer = j.kernel_regularizer
-            if old != 'input':
-                if 'conv' in old:
-                    try:
-                        i.kernel_regularizer = regularizer
-                        x = i(x)
-                    except:
-                        pass
-                elif 'activation' in old:
-                    if 'Softmax' in i.output.name:
-                        x = i(x)
-                    else:
-                        x = i(x)
-                        x = BatchNormalization()(x)
+    # def build_new(self, old_model, new_model):
+    #     o = old_model.layers
+    #     n = new_model.layers
+    #     del old_model
+    #     del new_model
+    #     K.clear_session()
+    #     inputs = Input((self.train_data.shape[1:]))
+    #     x = inputs
+    #     for i, j in zip(o, n):
+    #         old = " ".join(re.findall("[a-zA-Z]+", i.name))
+    #         new = " ".join(re.findall("[a-zA-Z]+", j.name))
+    #         if 'conv' in new:
+    #             regularizer = j.kernel_regularizer
+    #         if old != 'input':
+    #             if 'conv' in old:
+    #                 try:
+    #                     i.kernel_regularizer = regularizer
+    #                     x = i(x)
+    #                 except:
+    #                     pass
+    #             elif 'activation' in old:
+    #                 if 'Softmax' in i.output.op.inputs._inputs[0].name:
+    #                     x = i(x)
+    #                 else:
+    #                     x = i(x)
+    #                     x = BatchNormalization()(x)
+    #             else:
+    #                 x = i(x)
+    #     result_model = Model(inputs=inputs, outputs=x)
+    #     model_json = result_model.to_json()
+    #     model_name = "Model/model.json"
+    #     with open(model_name, 'w') as json_file:
+    #         json_file.write(model_json)
+    #
+    #     return result_model
+
+    def insert_layer(self, model, layer_regex, position='after'):
+        # Auxiliary dictionary to describe the network graph
+        K.clear_session()
+        network_dict = {'input_layers_of': {}, 'new_output_tensor_of': {}}
+        # Set the input layers of each layer
+        for layer in model.layers:
+            if 'conv' in layer.name:
+                layer.kernel_regularizer = reg.l2(self.weight_decay)
+            for node in layer.outbound_nodes:
+                layer_name = node.outbound_layer.name
+                if layer_name not in network_dict['input_layers_of']:
+                    network_dict['input_layers_of'].update(
+                        {layer_name: [layer.name]})
                 else:
-                    x = i(x)
-                # else:
-                #     x = j(x)
-                #     x = i(x)
-        del old_model
-        del new_model
-        result_model = Model(inputs=inputs, outputs=x)
-        model_json = result_model.to_json()
-        model_name = "Model/model.json"
-        with open(model_name, 'w') as json_file:
-            json_file.write(model_json)
+                    network_dict['input_layers_of'][layer_name].append(layer.name)
 
-        return result_model
+        # Set the output tensor of the input layer
+        network_dict['new_output_tensor_of'].update(
+            {model.layers[0].name: model.input})
 
-    def training(self, params, new):
+        # Iterate over all layers after the input
+        for layer in model.layers[1:]:
+            layer_input = [network_dict['new_output_tensor_of'][layer_aux]
+                           for layer_aux in network_dict['input_layers_of'][layer.name]]
+            if len(layer_input) == 1:
+                layer_input = layer_input[0]
+
+            # Insert layer if name matches the regular expression
+            if re.match(layer_regex, layer.name):
+                if position == 'replace':
+                    x = layer_input
+                elif position == 'after':
+                    x = layer(layer_input)
+                elif position == 'before':
+                    pass
+                else:
+                    raise ValueError('position must be: before, after or replace')
+                if not 'Softmax' in layer.output.op.inputs._inputs[0].name:
+                    x = BatchNormalization()(x)
+
+                if position == 'before':
+                    x = layer(x)
+            else:
+                x = layer(layer_input)
+
+            # Set new output tensor (the original one, or the one of the inserted layer)
+            network_dict['new_output_tensor_of'].update({layer.name: x})
+        input = model.inputs
+        return Model(inputs=input, outputs=x)
+
+    def training(self, params, new, model_b):
         '''
         Function for compiling and running training
         :return: training history
@@ -110,11 +183,13 @@ class neural_network:
 
         model = self.build_network(params, new)
         if new:
-            json_file = open("Model/model.json")
-            lmj = json_file.read()
-            json_file.close()
-            new_model = model_from_json(lmj)
-            model = self.build_new(model, new_model)
+            model = self.insert_layer(model, '.*activation.*')
+        # if new:
+        #     json_file = open("Model/model.json")
+        #     lmj = json_file.read()
+        #     json_file.close()
+        #     new_model = model_from_json(lmj)
+        #     model = self.build_new(model, new_model)
 
         print(model.summary())
 
@@ -132,16 +207,13 @@ class neural_network:
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
-
-        K.clear_session()
         return score, history, model
 
 
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 64, 'dr1_2': 0.27388076426452224, 'unit_c2': 124, 'unit_d': 505,
-                      'dr_f': 0.4033067277510234, 'learning_rate': 9.426807887713249e-05, 'batch_size': 32}
+    default_params = {'unit_c1': 16, 'dr1_2': 0.002, 'unit_c2': 64, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.1, 'batch_size': 128}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
