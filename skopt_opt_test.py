@@ -21,8 +21,8 @@ search_space = [
 # objective function
 @use_named_args(search_space)
 def objective(**params):
-    f = open("hyperparameters.txt", "a")
-    f.write(str(params))
+    f = open("hyperparameters_skopt.txt", "a")
+    f.write(str(params) + "\n")
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
     score, history, model = n.training(params, False)
     f.close()

@@ -184,14 +184,11 @@ class neural_network:
         model = self.build_network(params, new)
         if new:
             model = self.insert_layer(model, '.*activation.*')
-        # if new:
-        #     json_file = open("Model/model.json")
-        #     lmj = json_file.read()
-        #     json_file.close()
-        #     new_model = model_from_json(lmj)
-        #     model = self.build_new(model, new_model)
-
         print(model.summary())
+        try:
+            model.load_weights("Weights/weights.h5")
+        except:
+            print("Restart\n")
 
         # tensorboard logs
         tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))

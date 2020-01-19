@@ -11,3 +11,4 @@ Model
 logs2
 logs_hyperopt
 logs_test
+logs_skopt
