@@ -7,6 +7,8 @@ from dataset.cifar_dataset import cifar_data
 from neural_network import neural_network
 from tensorflow.keras import backend as K
 
+import time
+
 search_space = [
     Integer(16, 64, name='unit_c1'),
     Real(0.002, 0.3, name='dr1_2'),
@@ -16,7 +18,7 @@ search_space = [
     Real(10 ** -5, 10 ** -1, name='learning_rate'),
     Integer(16, 128, name='batch_size')
 ]
-
+start_time = time.time()
 
 # objective function
 @use_named_args(search_space)
@@ -38,3 +40,7 @@ search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_r
                          callback=[checkpoint_saver])
 
 print(search_res)
+end_time = time.time()
+
+print("TIME: ")
+print(end_time - start_time)
