@@ -13,10 +13,10 @@ from tensorflow.keras import regularizers as reg
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train
-        self.train_labels = Y_train
-        self.test_data = X_test
-        self.test_labels = Y_test
+        self.train_data = X_train[:10000]
+        self.train_labels = Y_train[:10000]
+        self.test_data = X_test[:6000]
+        self.test_labels = Y_test[:6000]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
@@ -191,7 +191,7 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(params['learning_rate'], time()))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])

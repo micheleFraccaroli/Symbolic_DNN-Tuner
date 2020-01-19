@@ -44,9 +44,9 @@ class diagnosis:
 
         smoothed_loss = self.smooth(history['loss'])
         up = []
-        for e in smoothed_loss:
+        for e in range(int(len(smoothed_loss)-1)):
             # check growing trend
-            if smoothed_loss[e] < smoothed_loss[e + 1]:
+            if smoothed_loss[e] < smoothed_loss[e+1]:
                 up.append(1)
 
         growing = (int(len(up)) * 100) / len(history['loss'])
@@ -57,8 +57,8 @@ class diagnosis:
         up = []
         down = []
 
-        for m, n in enumerate(smoothed_loss):
-            if smoothed_loss[m] < smoothed_loss[m+1]:
+        for e in range(int(len(smoothed_loss)-1)):
+            if smoothed_loss[e] < smoothed_loss[e+1]:
                 up.append(1)
             else:
                 down.append(1)

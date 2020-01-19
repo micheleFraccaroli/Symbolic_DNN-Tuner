@@ -36,7 +36,7 @@ def objective(params):
 
 
 trials = Trials()
-best = fmin(objective, default_params, algo=tpe.suggest, max_evals=20, trials=trials)
+best = fmin(objective, default_params, algo=tpe.suggest, max_evals=10, trials=trials)
 end_time = time.time()
 
 print("TIME: ")
