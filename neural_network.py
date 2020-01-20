@@ -1,4 +1,5 @@
 import re
+import sys
 from time import time
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
                                      BatchNormalization)
@@ -13,17 +14,17 @@ from tensorflow.keras import regularizers as reg
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:10000]
-        self.train_labels = Y_train[:10000]
-        self.test_data = X_test[:6000]
-        self.test_labels = Y_test[:6000]
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
         self.epochs = 200
-        self.weight_decay = 1e-4
+        # self.weight_decay = 1e-4
         # self.batch_size = 96
 
     def build_network(self, params, new):
@@ -53,6 +54,7 @@ class neural_network:
         x = Dense(self.n_classes)(x)
         x = Activation('softmax')(x)
         '''
+        print(self.train_data.shape)
 
         inputs = Input((self.train_data.shape[1:]))
         x = Conv2D(params['unit_c1'], (3, 3), padding='same')(inputs)
@@ -121,14 +123,14 @@ class neural_network:
     #
     #     return result_model
 
-    def insert_layer(self, model, layer_regex, position='after'):
+    def insert_layer(self, model, layer_regex, params, position='after'):
         # Auxiliary dictionary to describe the network graph
         K.clear_session()
         network_dict = {'input_layers_of': {}, 'new_output_tensor_of': {}}
         # Set the input layers of each layer
         for layer in model.layers:
             if 'conv' in layer.name:
-                layer.kernel_regularizer = reg.l2(self.weight_decay)
+                layer.kernel_regularizer = reg.l2(params['reg'])
             for node in layer.outbound_nodes:
                 layer_name = node.outbound_layer.name
                 if layer_name not in network_dict['input_layers_of']:
@@ -183,7 +185,7 @@ class neural_network:
 
         model = self.build_network(params, new)
         if new:
-            model = self.insert_layer(model, '.*activation.*')
+            model = self.insert_layer(model, '.*activation.*', params)
         print(model.summary())
         try:
             model.load_weights("Weights/weights.h5")

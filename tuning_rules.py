@@ -75,14 +75,12 @@ class tuning_rules:
             self.count_br += 1
             if self.count_br <= 1:
                 tuning_logs.write("Applied regulatization and batch normalization after activation\n")
-                #model = self.insert_layer(model, '.*activation.*')
-                model = 'batch'
                 print("I've try to fix OVERFITTING by adding regularization and batch normalization\n")
-                # model_json = model.to_json()
-                # model_name = "Model/model.json"
-                # with open(model_name, 'w') as json_file:
-                #     json_file.write(model_json)
+                model = 'batch'
                 controller.set_case(True)
+                new_p = {'reg': 1e-4}
+                self.space = self.ss.add_params(new_p)
+
         if "underfitting" in diseases:
             prob = ra.random()
             if prob <= 0.3:

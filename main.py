@@ -8,33 +8,45 @@ from skopt.callbacks import CheckpointSaver
 from skopt.plots import plot_convergence
 from skopt.plots import plot_objective, plot_evaluations
 from tqdm import tqdm
-
 from colors import colors
 from controller import controller
-from dataset.cifar_dataset import cifar_data
+from dataset.cifar_dataset import cifar_data, mnist, cifar_data_100
 from params_checker import params_checker
 from search_space import search_space
 from tensorflow.keras import backend as K
-from objFunction import objFunction
+from tensorflow.keras import utils
 
-X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
+
+# MNIST SECTION --------------------------------------------------------------------------------------------------------
+
+X_train, X_test, Y_train, Y_test, n_classes = mnist()
+# CIFAR-10 SECTION -----------------------------------------------------------------------------------------------------
+
+# X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 dt = datetime.datetime.now()
-max_evals = 9
+max_evals = 5
 
 # hyper-parameters
 sp = search_space()
-search_space = sp.search_sp()
+spa = sp.search_sp()
 controller = controller(X_train, Y_train, X_test, Y_test, n_classes)
 
 # objective function
 space = {}
 start_time = time.time()
 
+def update_space(new_space):
+    global search_space
+    search_space = new_space
+    return search_space
+
+search_space = update_space(spa)
 
 def objective(params):
+    space = {}
     for i, j in zip(search_space, params):
         space[i.name] = j
-
+    print(space)
     f = open("algorithm_logs/hyper-neural.txt", "a")
     f.write(str(space) + "\n")
     to_optimize = controller.training(space)
@@ -69,6 +81,7 @@ def start(search_space, iter):
             # controller.set_case(True)
             res = load('checkpoints/checkpoint.pkl')
             try:
+                print(new_space)
                 search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
                                          n_random_starts=0, callback=[checkpoint_saver])
@@ -76,13 +89,13 @@ def start(search_space, iter):
                 print(colors.FAIL, "Inside BO\n", colors.ENDC)
                 print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
             except:
+                print(new_space)
                 search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
                                          n_random_starts=1, callback=[checkpoint_saver])
         else:
-            controller.set_case(True)
-            search_space = new_space
-            search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=5, n_random_starts=1,
+            search_space = update_space(new_space)
+            search_res = gp_minimize(objective, new_space, acq_func='EI', n_calls=1, n_random_starts=1,
                                      callback=[checkpoint_saver])
         new_space, to_optimize = start_analisys()
 

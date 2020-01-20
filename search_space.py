@@ -3,7 +3,8 @@ from skopt.space import Integer, Real
 
 class search_space:
     def __init__(self):
-        self.epsilon_r = 0.3
+        self.epsilon_r1 = 10**-3
+        self.epsilon_r2 = 10**2
         self.epsilon_i = 2
 
     def search_sp(self):
@@ -23,7 +24,7 @@ class search_space:
         new_Hp = []
         for p in params.keys():
             if type(params[p]) == float:
-                np = Real(abs(params[p] - self.epsilon_r), params[p] + self.epsilon_r, name=p)
+                np = Real(abs(params[p]/self.epsilon_r2), (params[p]/self.epsilon_r1), name=p)
                 new_Hp.append(np)
             elif type(params[p]) == int:
                 np = Integer(abs(params[p] - self.epsilon_i), params[p] + self.epsilon_i, name=p)

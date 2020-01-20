@@ -29,7 +29,7 @@ def objective(params):
     f = open("hyperparameters_hyperopt.txt", "a")
     f.write(str(params) + "\n")
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
-    score, history, model = n.training(params, False)
+    score, history, model = n.training(params, False, None)
     f.close()
     K.clear_session()
     return {'loss': -score[1], 'status': STATUS_OK}
