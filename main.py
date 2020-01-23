@@ -10,7 +10,7 @@ from skopt.plots import plot_objective, plot_evaluations
 from tqdm import tqdm
 from colors import colors
 from controller import controller
-from dataset.cifar_dataset import cifar_data, mnist, cifar_data_100
+from datasets.cifar_dataset import cifar_data, mnist, cifar_data_100
 from params_checker import params_checker
 from search_space import search_space
 from tensorflow.keras import backend as K

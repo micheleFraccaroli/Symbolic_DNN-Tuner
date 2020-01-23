@@ -3,7 +3,7 @@ from skopt.callbacks import CheckpointSaver
 from skopt.space import Integer, Real
 from skopt.utils import use_named_args
 
-from dataset.cifar_dataset import cifar_data
+from dataset.cifar_dataset import cifar_data, mnist
 from neural_network import neural_network
 from tensorflow.keras import backend as K
 
@@ -32,11 +32,12 @@ def objective(**params):
     return -score[1]
 
 
-X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
+# X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
+X_train, X_test, Y_train, Y_test, n_classes = mnist()
 checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
 
 # optimization
-search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=10, n_random_starts=1,
+search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=6, n_random_starts=1,
                          callback=[checkpoint_saver])
 
 print(search_res)

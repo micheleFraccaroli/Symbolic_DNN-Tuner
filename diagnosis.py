@@ -28,7 +28,7 @@ class diagnosis:
         :return: list of issues
         '''
 
-        # overfitting | underfitting -----------------------------------------------------------------------------------
+        # Overfitting | Underfitting -----------------------------------------------------------------------------------
 
         last_training_acc = history['accuracy'][len(history['accuracy']) - 1]
         last_training_loss = history['loss'][len(history['loss']) - 1]
@@ -52,6 +52,19 @@ class diagnosis:
         growing = (int(len(up)) * 100) / len(history['loss'])
         if growing > 50:
             self.issues.append("increasing_loss")
+
+        # Decreasing accuracy trend ------------------------------------------------------------------------------------
+
+        smoothed_acc = self.smooth(history['accuracy'])
+        up = []
+        for e in range(int(len(smoothed_acc) - 1)):
+            # check growing trend
+            if smoothed_acc[e] < smoothed_acc[e + 1]:
+                up.append(1)
+
+        growing = (int(len(up)) * 100) / len(history['accuracy'])
+        if growing < 50:
+            self.issues.append("decreasing_loss")
 
         # Floating loss ------------------------------------------------------------------------------------------------
         up = []

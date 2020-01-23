@@ -1,6 +1,6 @@
 from neural_network import neural_network
 from tensorflow.keras import backend as K
-from dataset.cifar_dataset import cifar_data
+from datasets.cifar_dataset import cifar_data
 import sys
 import time
 

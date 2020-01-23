@@ -5,12 +5,11 @@ from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPool
                                      BatchNormalization)
 from tensorflow.keras import Model
 from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import TensorBoard
-from tensorflow.keras.models import model_from_json
-from dataset.cifar_dataset import cifar_data
+from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ReduceLROnPlateau
+from real_time_analysis import real_time_analysis
 from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers as reg
-
+from datasets.cifar_dataset import cifar_data
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
@@ -23,7 +22,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 10
         # self.weight_decay = 1e-4
         # self.batch_size = 96
 
@@ -86,42 +85,6 @@ class neural_network:
                 json_file.write(model_json)
 
         return model
-
-    # def build_new(self, old_model, new_model):
-    #     o = old_model.layers
-    #     n = new_model.layers
-    #     del old_model
-    #     del new_model
-    #     K.clear_session()
-    #     inputs = Input((self.train_data.shape[1:]))
-    #     x = inputs
-    #     for i, j in zip(o, n):
-    #         old = " ".join(re.findall("[a-zA-Z]+", i.name))
-    #         new = " ".join(re.findall("[a-zA-Z]+", j.name))
-    #         if 'conv' in new:
-    #             regularizer = j.kernel_regularizer
-    #         if old != 'input':
-    #             if 'conv' in old:
-    #                 try:
-    #                     i.kernel_regularizer = regularizer
-    #                     x = i(x)
-    #                 except:
-    #                     pass
-    #             elif 'activation' in old:
-    #                 if 'Softmax' in i.output.op.inputs._inputs[0].name:
-    #                     x = i(x)
-    #                 else:
-    #                     x = i(x)
-    #                     x = BatchNormalization()(x)
-    #             else:
-    #                 x = i(x)
-    #     result_model = Model(inputs=inputs, outputs=x)
-    #     model_json = result_model.to_json()
-    #     model_name = "Model/model.json"
-    #     with open(model_name, 'w') as json_file:
-    #         json_file.write(model_json)
-    #
-    #     return result_model
 
     def insert_layer(self, model, layer_regex, params, position='after'):
         # Auxiliary dictionary to describe the network graph
@@ -193,27 +156,45 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']), update_freq='batch')
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+        rta = real_time_analysis()
+        rta.set_epochs(self.epochs)
+        # es = EarlyStopping(monitor='val_loss', mode='min')
 
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                             verbose=1,
                             validation_data=(self.test_data, self.test_labels),
-                            callbacks=[tensorboard]).history
+                            callbacks=[tensorboard, rta]).history
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
-        return score, history, model
+        return score, history, model, rta
 
 
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 16, 'dr1_2': 0.002, 'unit_c2': 64, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.1, 'batch_size': 128}
+    default_params = {'unit_c1': 16, 'dr1_2': 0.002, 'unit_c2': 64, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.1, 'batch_size': 10}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model = n.training(default_params, False)
+    score, history, model, rta = n.training(default_params, False, None)
+
+    print("\n-----------------------------------------------------------\n")
+    print("\n-----------------------------------------------------------\n")
+    print(history)
+    print("\n-----------------------------------------------------------\n")
+    print(rta.accuracy[:100])
+    print("\n-----------------------------------------------------------\n")
+    print("\n-----------------------------------------------------------\n")
+
+    tot = 0
+    for a in rta.accuracy[:100]:
+        tot = a + tot
+
+    res = tot / 100
+    print(res)
