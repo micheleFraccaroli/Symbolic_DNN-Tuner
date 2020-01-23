@@ -1,11 +1,12 @@
 from __future__ import print_function
 
-from neural_network import neural_network
-from diagnosis import diagnosis
-from tuning_rules import tuning_rules
-from colors import colors
-from search_space import search_space
 from tensorflow.keras import backend as K
+
+from colors import colors
+from diagnosis import diagnosis
+from neural_network import neural_network
+from search_space import search_space
+from tuning_rules import tuning_rules
 
 
 class controller:
@@ -50,7 +51,7 @@ class controller:
         print(colors.CYAN, "| START DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
         diagnosis_logs = open("algorithm_logs/diagnosis_logs.txt", "a")
         self.d.reset_diagnosis()
-        self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs)
+        self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs,"controller")
         diagnosis_logs.close()
         print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 

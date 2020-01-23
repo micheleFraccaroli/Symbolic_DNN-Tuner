@@ -1,13 +1,13 @@
+import time
+
+from dataset.cifar_dataset import mnist
 from skopt import gp_minimize
 from skopt.callbacks import CheckpointSaver
 from skopt.space import Integer, Real
 from skopt.utils import use_named_args
-
-from dataset.cifar_dataset import cifar_data, mnist
-from neural_network import neural_network
 from tensorflow.keras import backend as K
 
-import time
+from neural_network import neural_network
 
 search_space = [
     Integer(16, 64, name='unit_c1'),

@@ -1,8 +1,6 @@
-import numpy as np
-from scipy.stats import norm
-from warnings import simplefilter, catch_warnings
 import random
-from skopt.space import Integer, Real
+
+from skopt.space import Integer
 
 
 class params_checker:

@@ -1,13 +1,11 @@
 from __future__ import print_function
+
 import keras
-from keras.datasets import cifar10
-from keras.preprocessing.image import ImageDataGenerator
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Activation, Flatten, BatchNormalization
-from keras.layers import Conv2D, MaxPooling2D
 from keras.callbacks import TensorBoard
-from tensorflow.keras import regularizers
-import os
+from keras.datasets import cifar10
+from keras.layers import Conv2D, MaxPooling2D
+from keras.layers import Dense, Dropout, Activation, Flatten
+from keras.models import Sequential
 
 batch_size = 128
 num_classes = 10

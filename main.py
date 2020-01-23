@@ -1,28 +1,22 @@
 import datetime
-import sys
 import time
 
 from skopt import gp_minimize
 from skopt import load
 from skopt.callbacks import CheckpointSaver
-from skopt.plots import plot_convergence
-from skopt.plots import plot_objective, plot_evaluations
-from tqdm import tqdm
+from tensorflow.keras import backend as K
+
 from colors import colors
 from controller import controller
-from datasets.cifar_dataset import cifar_data, mnist, cifar_data_100
-from params_checker import params_checker
+from datasets.cifar_dataset import cifar_data
 from search_space import search_space
-from tensorflow.keras import backend as K
-from tensorflow.keras import utils
-
 
 # MNIST SECTION --------------------------------------------------------------------------------------------------------
 
-X_train, X_test, Y_train, Y_test, n_classes = mnist()
+# X_train, X_test, Y_train, Y_test, n_classes = mnist()
 # CIFAR-10 SECTION -----------------------------------------------------------------------------------------------------
 
-# X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
+X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 dt = datetime.datetime.now()
 max_evals = 5
 

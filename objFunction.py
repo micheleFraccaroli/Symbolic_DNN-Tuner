@@ -1,7 +1,3 @@
-import sys
-from controller import controller
-
-
 class objFunction:
     def __init__(self, search, controller):
         self.search_space = search

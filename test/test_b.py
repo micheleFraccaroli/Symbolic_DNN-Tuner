@@ -1,17 +1,18 @@
 # example of bayesian optimization for a 1d function from scratch
-from math import sin
 from math import pi
+from math import sin
+from warnings import catch_warnings
+from warnings import simplefilter
+
+from matplotlib import pyplot
 from numpy import arange
-from numpy import vstack
 from numpy import argmax
 from numpy import asarray
+from numpy import vstack
 from numpy.random import normal
 from numpy.random import random
 from scipy.stats import norm
 from sklearn.gaussian_process import GaussianProcessRegressor
-from warnings import catch_warnings
-from warnings import simplefilter
-from matplotlib import pyplot
 
 
 # objective function

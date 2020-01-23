@@ -1,7 +1,5 @@
 from __future__ import print_function
 
-import os
-
 import keras
 from keras import regularizers
 from keras.callbacks import TensorBoard
@@ -9,7 +7,6 @@ from keras.datasets import cifar10
 from keras.layers import (Activation, BatchNormalization, Conv2D, Dense,
                           Dropout, Flatten, MaxPooling2D)
 from keras.models import Sequential
-from keras.preprocessing.image import ImageDataGenerator
 
 batch_size = 128
 num_classes = 10

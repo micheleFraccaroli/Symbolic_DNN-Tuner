@@ -1,12 +1,11 @@
-from neural_network import neural_network
-from tensorflow.keras import backend as K
-from datasets.cifar_dataset import cifar_data
-import sys
 import time
 
-from hyperopt import space_eval
-from hyperopt import fmin, tpe, hp, Trials
 from hyperopt import STATUS_OK
+from hyperopt import fmin, tpe, hp, Trials
+from tensorflow.keras import backend as K
+
+from datasets.cifar_dataset import cifar_data
+from neural_network import neural_network
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 

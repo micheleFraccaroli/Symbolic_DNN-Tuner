@@ -1,5 +1,5 @@
-from tensorflow.keras.datasets import cifar10, cifar100
 import tensorflow as tf
+from tensorflow.keras.datasets import cifar10, cifar100
 
 
 def cifar_data():

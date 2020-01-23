@@ -1,15 +1,16 @@
 import re
-import sys
 from time import time
-from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
-                                     BatchNormalization)
+
 from tensorflow.keras import Model
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ReduceLROnPlateau
-from real_time_analysis import real_time_analysis
 from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers as reg
+from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
+                                     BatchNormalization)
+from tensorflow.keras.optimizers import Adam
+
 from datasets.cifar_dataset import cifar_data
+
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
@@ -22,7 +23,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 10
+        self.epochs = 30
         # self.weight_decay = 1e-4
         # self.batch_size = 96
 
@@ -30,28 +31,6 @@ class neural_network:
         '''
         Function for define the network structure
         :return: model
-        '''
-        '''
-        inputs = Input((self.train_data.shape[1:]))
-        x = Conv2D(params['unit_c1'], (3, 3), padding='same', kernel_regularizer=reg.l2(1e-4))(inputs)
-        x = Activation('relu')(x)
-        x = Conv2D(params['unit_c1'], (3, 3), kernel_regularizer=reg.l2(1e-4))(x)
-        x = Activation('relu')(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-
-        x = Conv2D(params['unit_c2'], (3, 3), padding='same', kernel_regularizer=reg.l2(1e-4))(x)
-        x = Activation('relu')(x)
-        x = Conv2D(params['unit_c2'], (3, 3), kernel_regularizer=reg.l2(1e-4))(x)
-        x = Activation('relu')(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-        x = Dropout(params['dr1_2'])(x)
-
-        x = Flatten()(x)
-        x = Dense(params['unit_d'])(x)
-        x = Activation('relu')(x)
-        x = Dropout(params['dr_f'])(x)
-        x = Dense(self.n_classes)(x)
-        x = Activation('softmax')(x)
         '''
         print(self.train_data.shape)
 
@@ -156,23 +135,23 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']), update_freq='batch')
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-        rta = real_time_analysis()
-        rta.set_epochs(self.epochs)
+        # rta = real_time_analysis()
+        # rta.set_epochs(self.epochs)
         # es = EarlyStopping(monitor='val_loss', mode='min')
 
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                             verbose=1,
                             validation_data=(self.test_data, self.test_labels),
-                            callbacks=[tensorboard, rta]).history
+                            callbacks=[tensorboard]).history
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
-        return score, history, model, rta
+        return score, history, model#, rta
 
 
 if __name__ == '__main__':
@@ -182,19 +161,4 @@ if __name__ == '__main__':
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model, rta = n.training(default_params, False, None)
-
-    print("\n-----------------------------------------------------------\n")
-    print("\n-----------------------------------------------------------\n")
-    print(history)
-    print("\n-----------------------------------------------------------\n")
-    print(rta.accuracy[:100])
-    print("\n-----------------------------------------------------------\n")
-    print("\n-----------------------------------------------------------\n")
-
-    tot = 0
-    for a in rta.accuracy[:100]:
-        tot = a + tot
-
-    res = tot / 100
-    print(res)
+    score, history, model = n.training(default_params, False, None)

@@ -11,6 +11,9 @@ class diagnosis:
     def reset_diagnosis(self):
         self.issues = []
 
+    def setting_overfitting_tollerance(self, e):
+        self.epsilon_1 = e
+
     def smooth(self, scalars):
         last = scalars[0]
         smoothed = list()
@@ -21,7 +24,7 @@ class diagnosis:
             last = smoothed_val
         return smoothed
 
-    def diagnosis(self, history, score, diagnosis_logs):
+    def diagnosis(self, history, score, diagnosis_logs, from_):
         '''
         this function take history and result of the model for make a diagnosis
         all detected problems are stored into "issues" list
@@ -33,12 +36,20 @@ class diagnosis:
         last_training_acc = history['accuracy'][len(history['accuracy']) - 1]
         last_training_loss = history['loss'][len(history['loss']) - 1]
 
-        if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
-                last_training_loss - score[0]) > self.epsilon_1:
-            self.issues.append("overfitting")
-        if abs(history['loss'][len(history['val_loss']) - 1] - 1) > self.epsilon_2 or abs(
-                last_training_loss - 1) > self.epsilon_2:
-            self.issues.append("underfitting")
+        if from_ == "real-time":
+            self.setting_overfitting_tollerance(0.55)
+            if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
+                    last_training_loss - score[0]) > self.epsilon_1:
+                self.issues.append("overfitting")
+
+        else:
+            self.setting_overfitting_tollerance(self.epsilon_1)
+            if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
+                    last_training_loss - score[0]) > self.epsilon_1:
+                self.issues.append("overfitting")
+            if abs(history['loss'][len(history['val_loss']) - 1] - 1) > self.epsilon_2 or abs(
+                    last_training_loss - 1) > self.epsilon_2:
+                self.issues.append("underfitting")
 
         # Increasing loss trend ----------------------------------------------------------------------------------------
 
@@ -64,7 +75,7 @@ class diagnosis:
 
         growing = (int(len(up)) * 100) / len(history['accuracy'])
         if growing < 50:
-            self.issues.append("decreasing_loss")
+            self.issues.append("decreasing_accuracy")
 
         # Floating loss ------------------------------------------------------------------------------------------------
         up = []
@@ -75,7 +86,7 @@ class diagnosis:
                 up.append(1)
             else:
                 down.append(1)
-        if not isclose(len(up), len(down), abs_tol=10):
+        if isclose(len(up), len(down), abs_tol=10):
             self.issues.append("floating_loss")
 
         '''
