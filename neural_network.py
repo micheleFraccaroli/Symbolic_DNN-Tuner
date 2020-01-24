@@ -14,16 +14,16 @@ from datasets.cifar_dataset import cifar_data
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:1000]
-        self.train_labels = Y_train[:1000]
-        self.test_data = X_test[:600]
-        self.test_labels = Y_test[:600]
+        self.train_data = X_train
+        self.train_labels = Y_train
+        self.test_data = X_test
+        self.test_labels = Y_test
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 30
+        self.epochs = 200
         # self.weight_decay = 1e-4
         # self.batch_size = 96
 

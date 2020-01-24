@@ -47,7 +47,7 @@ class diagnosis:
             if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
                     last_training_loss - score[0]) > self.epsilon_1:
                 self.issues.append("overfitting")
-            if abs(history['loss'][len(history['val_loss']) - 1] - 1) > self.epsilon_2 or abs(
+            if abs(last_training_acc - 1) > self.epsilon_2 or abs(
                     last_training_loss - 1) > self.epsilon_2:
                 self.issues.append("underfitting")
 
@@ -86,7 +86,7 @@ class diagnosis:
                 up.append(1)
             else:
                 down.append(1)
-        if isclose(len(up), len(down), abs_tol=10):
+        if isclose(len(up), len(down), abs_tol=20) and len(up) > 0 and len(down) > 0:
             self.issues.append("floating_loss")
 
         '''

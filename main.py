@@ -18,7 +18,7 @@ from search_space import search_space
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 dt = datetime.datetime.now()
-max_evals = 5
+max_evals = 19
 
 # hyper-parameters
 sp = search_space()

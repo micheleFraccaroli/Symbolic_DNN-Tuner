@@ -9,7 +9,6 @@ class tuning_rules:
         self.count_lr = 0
         self.count_br = 0
 
-
     def repair(self, controller, diseases, tuning_logs, model, params):
         '''
         Method for fix the issues
@@ -33,7 +32,7 @@ class tuning_rules:
                 if self.count_lr < 3:
                     for hp in self.space:
                         if hp.name == 'learning_rate':
-                            hp.high = params['learning_rate'] + (params['learning_rate']/2)
+                            hp.high = params['learning_rate'] + (params['learning_rate'] / 2)
                     tuning_logs.write("I've try to fix UNDERFITTING decreasing the learning_rate\n")
             else:
                 for hp in self.space:
@@ -58,6 +57,5 @@ class tuning_rules:
                 if hp.name == 'batch_size':
                     hp.low = params['batch_size'] - 1
             tuning_logs.write("I've try to fix FLOATING LOSS increasing the batch size\n")
-
 
         return self.space, model
