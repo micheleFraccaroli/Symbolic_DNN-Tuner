@@ -54,7 +54,6 @@ class controller:
         self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs,"controller")
         diagnosis_logs.close()
         print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
-
         if self.issues:
             self.space, to_optimize, self.model = self.tuning()
             return self.space, to_optimize

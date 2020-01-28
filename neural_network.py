@@ -4,7 +4,7 @@ from time import time
 from tensorflow.keras import Model
 from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers as reg
-from tensorflow.keras.callbacks import TensorBoard
+from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
                                      BatchNormalization)
 from tensorflow.keras.optimizers import Adam
@@ -14,16 +14,16 @@ from datasets.cifar_dataset import cifar_data
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train
-        self.train_labels = Y_train
-        self.test_data = X_test
-        self.test_labels = Y_test
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 30
         # self.weight_decay = 1e-4
         # self.batch_size = 96
 
@@ -135,19 +135,19 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
         # rta = real_time_analysis()
         # rta.set_epochs(self.epochs)
-        # es = EarlyStopping(monitor='val_loss', mode='min')
+        es = EarlyStopping(monitor='val_loss', mode='min')
 
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                             verbose=1,
                             validation_data=(self.test_data, self.test_labels),
-                            callbacks=[tensorboard]).history
+                            callbacks=[tensorboard, es]).history
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)

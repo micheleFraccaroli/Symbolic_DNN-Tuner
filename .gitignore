@@ -12,3 +12,4 @@ logs2
 logs_hyperopt
 logs_test
 logs_skopt
+test_loss.csv

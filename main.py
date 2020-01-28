@@ -10,6 +10,7 @@ from colors import colors
 from controller import controller
 from datasets.cifar_dataset import cifar_data
 from search_space import search_space
+from params_checker import paramsChecker
 
 # MNIST SECTION --------------------------------------------------------------------------------------------------------
 
@@ -18,7 +19,7 @@ from search_space import search_space
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 dt = datetime.datetime.now()
-max_evals = 19
+max_evals = 10
 
 # hyper-parameters
 sp = search_space()
@@ -65,7 +66,8 @@ def start(search_space, iter):
     # optimization
     controller.set_case(False)
     search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
-                             callback=[checkpoint_saver])
+                                 callback=[checkpoint_saver])
+
     # K.clear_session()
     new_space, to_optimize = start_analisys()
 
@@ -91,7 +93,9 @@ def start(search_space, iter):
             search_space = update_space(new_space)
             search_res = gp_minimize(objective, new_space, acq_func='EI', n_calls=1, n_random_starts=1,
                                      callback=[checkpoint_saver])
+
         new_space, to_optimize = start_analisys()
+
 
     return search_res
 

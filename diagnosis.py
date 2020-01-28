@@ -1,5 +1,6 @@
 from math import isclose
-
+import csv
+import matplotlib.pyplot as plt
 
 class diagnosis:
     def __init__(self):
@@ -47,7 +48,7 @@ class diagnosis:
             if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
                     last_training_loss - score[0]) > self.epsilon_1:
                 self.issues.append("overfitting")
-            if abs(last_training_acc - 1) > self.epsilon_2 or isclose(last_training_loss, 0, abs_tol = 0.5):
+            if abs(last_training_acc - 1) > self.epsilon_2 or not isclose(last_training_loss, 0, abs_tol = 0.5):
                 self.issues.append("underfitting")
 
         # Increasing loss trend ----------------------------------------------------------------------------------------
@@ -85,7 +86,7 @@ class diagnosis:
                 up.append(1)
             else:
                 down.append(1)
-        if isclose(len(up), len(down), abs_tol=10) and len(up) > 0 and len(down) > 0:
+        if isclose(len(up), len(down), abs_tol=150) and len(up) > 0 and len(down) > 0:
             self.issues.append("floating_loss")
 
         '''
@@ -94,3 +95,26 @@ class diagnosis:
         diagnosis_logs.write(str(self.issues))
         print(" I've found: " + str(self.issues) + "\n")
         return self.issues
+
+
+if __name__ == '__main__':
+    y = []
+    with open('test_loss.csv','r') as f:
+        reader = csv.reader(f)
+        for row in reader:
+            y.append(float(row[2]))
+
+    d = diagnosis()
+    res = d.smooth(y)
+
+
+    up = []
+    down = []
+
+    for e in range(int(len(res) - 1)):
+        if res[e] < res[e + 1]:
+            up.append(1)
+        else:
+            down.append(1)
+    if isclose(len(up), len(down), abs_tol=150) and len(up) > 0 and len(down) > 0:
+        print("floating finded")
