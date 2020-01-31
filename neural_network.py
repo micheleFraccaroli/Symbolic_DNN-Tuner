@@ -28,10 +28,10 @@ class neural_network:
         # self.batch_size = 96
 
     def build_network(self, params, new):
-        '''
+        """
         Function for define the network structure
         :return: model
-        '''
+        """
         print(self.train_data.shape)
 
         inputs = Input((self.train_data.shape[1:]))
@@ -116,10 +116,10 @@ class neural_network:
         return Model(inputs=input, outputs=x)
 
     def training(self, params, new, model_b):
-        '''
+        """
         Function for compiling and running training
         :return: training history
-        '''
+        """
         print("\n-----------------------------------------------------------\n")
         print(params)
         print("\n-----------------------------------------------------------\n")
@@ -142,7 +142,7 @@ class neural_network:
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
         # rta = real_time_analysis()
         # rta.set_epochs(self.epochs)
-        es = EarlyStopping(monitor='val_loss', mode='min')
+        es = EarlyStopping(monitor='val_loss', patience=50, verbose=1, mode='min')
 
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                             verbose=1,

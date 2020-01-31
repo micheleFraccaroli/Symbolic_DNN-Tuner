@@ -56,10 +56,10 @@ def start_analisys():
 
 
 def start(search_space, iter):
-    '''
+    """
     Starting bayesian Optimization
     :return: research result
-    '''
+    """
     print(colors.MAGENTA, "|  ----------- START BAYESIAN OPTIMIZATION ----------  |\n", colors.ENDC)
 
     checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)

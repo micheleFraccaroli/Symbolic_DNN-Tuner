@@ -1,6 +1,5 @@
 import random as ra
 
-
 class tuning_rules:
     def __init__(self, params, ss):
         self.space = params

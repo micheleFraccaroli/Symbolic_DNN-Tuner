@@ -26,11 +26,11 @@ class diagnosis:
         return smoothed
 
     def diagnosis(self, history, score, diagnosis_logs, from_):
-        '''
+        """
         this function take history and result of the model for make a diagnosis
         all detected problems are stored into "issues" list
         :return: list of issues
-        '''
+        """
 
         # Overfitting | Underfitting -----------------------------------------------------------------------------------
 
