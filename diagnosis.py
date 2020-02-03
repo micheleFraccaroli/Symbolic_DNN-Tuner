@@ -2,6 +2,7 @@ from math import isclose
 import csv
 import matplotlib.pyplot as plt
 
+
 class diagnosis:
     def __init__(self):
         self.issues = []
@@ -39,33 +40,42 @@ class diagnosis:
 
         if from_ == "real-time":
             self.setting_overfitting_tollerance(0.55)
-            if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
-                    last_training_loss - score[0]) > self.epsilon_1:
-                self.issues.append("overfitting")
+            if abs(last_training_acc - score[1]) > self.epsilon_1:
+                self.issues.append("gap_tr_te_acc")
+            elif abs(last_training_loss - score[0]) > self.epsilon_1:
+                self.issues.append("gap_tr_te_loss")
+            else:
+                pass
 
         else:
             self.setting_overfitting_tollerance(self.epsilon_1)
-            if abs(last_training_acc - score[1]) > self.epsilon_1 or abs(
-                    last_training_loss - score[0]) > self.epsilon_1:
-                self.issues.append("overfitting")
-            if abs(last_training_acc - 1) > self.epsilon_2 or not isclose(last_training_loss, 0, abs_tol = 0.5):
-                self.issues.append("underfitting")
+            if abs(last_training_acc - score[1]) > self.epsilon_1:
+                self.issues.append("gap_tr_te_acc")
+            elif abs(last_training_loss - score[0]) > self.epsilon_1:
+                self.issues.append("gap_tr_te_loss")
+
+        if abs(last_training_acc - 1) > self.epsilon_2:
+            self.issues.append("low_acc")
+        elif not isclose(last_training_loss, 0, abs_tol=0.5):
+            self.issues.append("high_loss")
+        else:
+            pass
 
         # Increasing loss trend ----------------------------------------------------------------------------------------
 
         smoothed_loss = self.smooth(history['loss'])
         up = []
-        for e in range(int(len(smoothed_loss)-1)):
+        for e in range(int(len(smoothed_loss) - 1)):
             # check growing trend
-            if smoothed_loss[e] < smoothed_loss[e+1]:
+            if smoothed_loss[e] < smoothed_loss[e + 1]:
                 up.append(1)
 
         growing = (int(len(up)) * 100) / len(history['loss'])
         if growing > 50:
-            self.issues.append("increasing_loss")
+            self.issues.append("growing_loss_trend")
 
         # Decreasing accuracy trend ------------------------------------------------------------------------------------
-
+        # not implemented in diagnosis and tuning
         smoothed_acc = self.smooth(history['accuracy'])
         up = []
         for e in range(int(len(smoothed_acc) - 1)):
@@ -81,13 +91,13 @@ class diagnosis:
         up = []
         down = []
 
-        for e in range(int(len(smoothed_loss)-1)):
-            if smoothed_loss[e] < smoothed_loss[e+1]:
+        for e in range(int(len(smoothed_loss) - 1)):
+            if smoothed_loss[e] < smoothed_loss[e + 1]:
                 up.append(1)
             else:
                 down.append(1)
         if isclose(len(up), len(down), abs_tol=150) and len(up) > 0 and len(down) > 0:
-            self.issues.append("floating_loss")
+            self.issues.append("up_down_loss")
 
         '''
         some diagnosis to be implemented
@@ -99,14 +109,13 @@ class diagnosis:
 
 if __name__ == '__main__':
     y = []
-    with open('test_loss.csv','r') as f:
+    with open('test_loss.csv', 'r') as f:
         reader = csv.reader(f)
         for row in reader:
             y.append(float(row[2]))
 
     d = diagnosis()
     res = d.smooth(y)
-
 
     up = []
     down = []

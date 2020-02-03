@@ -1,5 +1,3 @@
-from __future__ import print_function
-
 from tensorflow.keras import backend as K
 
 from colors import colors
@@ -7,6 +5,7 @@ from diagnosis import diagnosis
 from neural_network import neural_network
 from search_space import search_space
 from tuning_rules import tuning_rules
+from neural_sym_bridge import NeuralSymbolicBridge
 
 
 class controller:
@@ -21,6 +20,7 @@ class controller:
         self.ss = search_space()
         self.space = self.ss.search_sp()
         self.tr = tuning_rules(self.space, self.ss)
+        self.symbolic_tuning = []
         self.issues = []
         self.new = None
         self.model = None
@@ -54,7 +54,11 @@ class controller:
         self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs,"controller")
         diagnosis_logs.close()
         print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
-        if self.issues:
+
+        nsb = NeuralSymbolicBridge()
+        self.symbolic_tuning = nsb.symbolic_reasoning(self.issues)
+
+        if self.symbolic_tuning:
             self.space, to_optimize, self.model = self.tuning()
             return self.space, to_optimize
         else:
@@ -67,7 +71,7 @@ class controller:
         """
         print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
         tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
-        new_space, self.model = self.tr.repair(self, self.issues, tuning_logs, self.model, self.params)
+        new_space, self.model = self.tr.repair(self, self.symbolic_tuning, tuning_logs, self.model, self.params)
         tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)
