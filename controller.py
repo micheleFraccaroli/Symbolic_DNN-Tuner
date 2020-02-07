@@ -67,7 +67,7 @@ class controller:
         # self.d.reset_diagnosis()
         # self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs, "controller")
 
-        print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
+        print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
         self.symbolic_tuning = self.nsb.symbolic_reasoning([self.history['loss'], self.smooth(self.history['loss']),
                                                             self.smooth(self.history['accuracy']),
@@ -88,12 +88,12 @@ class controller:
         tuning the hyper-parameter space or add new hyper-parameters
         :return: new hp_space, new_model and accuracy(*-1) for the Bayesian Optimization
         """
-        print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
+        print(colors.FAIL, "| START SYMBOLIC TUNING    ----------------------------------  |\n", colors.ENDC)
         # tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
         # new_space, self.model = self.tr.repair(self, self.symbolic_tuning, tuning_logs, self.model, self.params)
         new_space, self.model = self.tr.repair(self, self.symbolic_tuning, self.model, self.params)
         # tuning_logs.close()
         self.issues = []
-        print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)
+        print(colors.FAIL, "| END SYMBOLIC TUNING      ----------------------------------  |\n", colors.ENDC)
 
         return new_space, -self.score[1], self.model

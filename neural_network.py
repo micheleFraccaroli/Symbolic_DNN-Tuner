@@ -142,7 +142,7 @@ class neural_network:
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
         # rta = real_time_analysis()
         # rta.set_epochs(self.epochs)
-        es = EarlyStopping(monitor='val_loss', patience=50, verbose=1, mode='min')
+        es = EarlyStopping(monitor='val_loss', patience=15, verbose=1, mode='min')
 
         history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                             verbose=1,

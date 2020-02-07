@@ -50,7 +50,8 @@ class tuning_rules_symbolic:
         for d in sym_diseases:
             if d != 'reg_l2':
                 d = "self." + d + "(params)"
-            print(d)
+            else:
+                d = "self." + d
             eval(d)
 
         return self.space, model
