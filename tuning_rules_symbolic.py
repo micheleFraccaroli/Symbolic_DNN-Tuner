@@ -51,7 +51,7 @@ class tuning_rules_symbolic:
             if d != 'reg_l2':
                 d = "self." + d + "(params)"
             else:
-                d = "self." + d
+                d = "self." + d + "(controller)"
             eval(d)
 
         return self.space, model
