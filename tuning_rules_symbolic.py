@@ -17,7 +17,7 @@ class tuning_rules_symbolic:
             new_p = {'reg': 1e-4}
             self.space = self.ss.add_params(new_p)
 
-    def incr_dropout(self, params):
+    def inc_dropout(self, params):
         for hp in self.space:
             if 'dr' in hp.name:
                 hp.low = params[hp.name] - 1
