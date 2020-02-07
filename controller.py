@@ -5,6 +5,7 @@ from diagnosis import diagnosis
 from neural_network import neural_network
 from search_space import search_space
 from tuning_rules import tuning_rules
+from tuning_rules_symbolic import tuning_rules_symbolic
 from neural_sym_bridge import NeuralSymbolicBridge
 
 
@@ -16,18 +17,30 @@ class controller:
         self.X_test = X_test
         self.Y_test = Y_test
         self.n_classes = n_classes
-        self.d = diagnosis()
+        # self.d = diagnosis()
         self.ss = search_space()
         self.space = self.ss.search_sp()
-        self.tr = tuning_rules(self.space, self.ss)
+        self.tr = tuning_rules_symbolic(self.space, self.ss)
+        self.nsb = NeuralSymbolicBridge()
         self.symbolic_tuning = []
         self.issues = []
+        self.weight = 0.6
         self.new = None
         self.model = None
         self.params = None
 
     def set_case(self, new):
         self.new = new
+
+    def smooth(self, scalars):
+        last = scalars[0]
+        smoothed = list()
+        for point in scalars:
+            # Calculate smoothed value
+            smoothed_val = last * self.weight + (1 - self.weight) * point
+            smoothed.append(smoothed_val)
+            last = smoothed_val
+        return smoothed
 
     def training(self, params):
         """
@@ -48,15 +61,21 @@ class controller:
         method for diagnose possible issue like overfitting
         :return: call to tuning method or hp_space, model and accuracy(*-1)
         """
-        print(colors.CYAN, "| START DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
-        diagnosis_logs = open("algorithm_logs/diagnosis_logs.txt", "a")
-        self.d.reset_diagnosis()
-        self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs,"controller")
-        diagnosis_logs.close()
+        print(colors.CYAN, "| START SYMBOLIC DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
+        diagnosis_logs = open("algorithm_logs/diagnosis_symbolic_logs.txt", "a")
+        tuning_logs = open("algorithm_logs/tuning_symbolic_logs.txt", "a")
+        # self.d.reset_diagnosis()
+        # self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs, "controller")
+
         print(colors.CYAN, "| END DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
-        nsb = NeuralSymbolicBridge()
-        self.symbolic_tuning = nsb.symbolic_reasoning(self.issues)
+        self.symbolic_tuning = self.nsb.symbolic_reasoning([self.history['loss'], self.smooth(self.history['loss']),
+                                                            self.smooth(self.history['accuracy']),
+                                                            self.history['accuracy'],
+                                                            self.history['val_loss'], self.history['val_accuracy']],
+                                                            diagnosis_logs, tuning_logs)
+        diagnosis_logs.close()
+        tuning_logs.close()
 
         if self.symbolic_tuning:
             self.space, to_optimize, self.model = self.tuning()
@@ -70,9 +89,10 @@ class controller:
         :return: new hp_space, new_model and accuracy(*-1) for the Bayesian Optimization
         """
         print(colors.FAIL, "| START TUNING    ----------------------------------  |\n", colors.ENDC)
-        tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
-        new_space, self.model = self.tr.repair(self, self.symbolic_tuning, tuning_logs, self.model, self.params)
-        tuning_logs.close()
+        # tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
+        # new_space, self.model = self.tr.repair(self, self.symbolic_tuning, tuning_logs, self.model, self.params)
+        new_space, self.model = self.tr.repair(self, self.symbolic_tuning, self.model, self.params)
+        # tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END TUNING      ----------------------------------  |\n", colors.ENDC)
 

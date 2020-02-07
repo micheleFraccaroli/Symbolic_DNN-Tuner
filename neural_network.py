@@ -23,7 +23,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 30
+        self.epochs = 10
         # self.weight_decay = 1e-4
         # self.batch_size = 96
 
@@ -135,7 +135,7 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
