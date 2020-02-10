@@ -19,13 +19,23 @@ class NeuralSymbolicBridge:
         sym_model = f.read()
         f.close()
 
+        p = open("symbolic/sym_prob.pl", "r")
+        sym_prob = p.read()
+        p.close()
+
         # create facts string for complete the symbolic model
         sym_facts = ""
         for fa, i in zip(facts, self.initial_facts):
             sym_facts = sym_facts + i + "(" + str(fa) + ").\n"
 
         # return the assembled model
-        return PrologString(sym_facts + sym_model)
+        return PrologString(sym_facts + sym_prob + "\n" + sym_model)
+
+    def edit_probs(self, sym_model):
+        f = open("symbolic/sym_prob.pl", "w")
+        new_sym_prob = sym_model[: + sym_model.find("action")]
+        f.write(new_sym_prob)
+        f.close()
 
     def symbolic_reasoning(self, facts, diagnosis_logs, tuning_logs):
         """
@@ -43,4 +53,4 @@ class NeuralSymbolicBridge:
 
         diagnosis_logs.write(str(diagnosis))
         tuning_logs.write(str(tuning))
-        return tuning
+        return tuning, diagnosis

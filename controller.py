@@ -7,6 +7,9 @@ from search_space import search_space
 from tuning_rules import tuning_rules
 from tuning_rules_symbolic import tuning_rules_symbolic
 from neural_sym_bridge import NeuralSymbolicBridge
+from lfi_integration import LfiIntegration
+from storing_experience import StoringExperience
+from improvement_checker import ImprovementChecker
 
 
 class controller:
@@ -22,12 +25,17 @@ class controller:
         self.space = self.ss.search_sp()
         self.tr = tuning_rules_symbolic(self.space, self.ss)
         self.nsb = NeuralSymbolicBridge()
+        self.lfi = LfiIntegration()
         self.symbolic_tuning = []
+        self.symbolic_diagnosis = []
         self.issues = []
         self.weight = 0.6
         self.new = None
         self.model = None
         self.params = None
+        self.db = StoringExperience()
+        self.db.create_db()
+        self.imp_checker = ImprovementChecker(self.db, self.lfi)
 
     def set_case(self, new):
         self.new = new
@@ -69,11 +77,20 @@ class controller:
 
         print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
-        self.symbolic_tuning = self.nsb.symbolic_reasoning([self.history['loss'], self.smooth(self.history['loss']),
-                                                            self.smooth(self.history['accuracy']),
-                                                            self.history['accuracy'],
-                                                            self.history['val_loss'], self.history['val_accuracy']],
-                                                            diagnosis_logs, tuning_logs)
+        self.db.insert(self.score[1], self.score[0])
+
+        self.symbolic_tuning, self.symbolic_diagnosis = self.nsb.symbolic_reasoning(
+            [self.history['loss'], self.smooth(self.history['loss']),
+             self.smooth(self.history['accuracy']),
+             self.history['accuracy'],
+             self.history['val_loss'], self.history['val_accuracy']],
+            diagnosis_logs, tuning_logs)
+
+        improv = self.imp_checker.checker(self.score[1], self.score[0])
+        _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning, self.symbolic_diagnosis)
+        sy_model = lfi_problem.get_model()
+        self.nsb.edit_probs(sy_model)
+
         diagnosis_logs.close()
         tuning_logs.close()
 

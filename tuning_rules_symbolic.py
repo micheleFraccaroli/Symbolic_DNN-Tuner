@@ -20,7 +20,7 @@ class tuning_rules_symbolic:
     def inc_dropout(self, params):
         for hp in self.space:
             if 'dr' in hp.name:
-                hp.low = params[hp.name] - 1
+                hp.low = params[hp.name] - params[hp.name]/100
 
     def decr_lr(self, params):
         for hp in self.space:

@@ -82,7 +82,7 @@ def start(search_space, iter):
                                          n_calls=1,
                                          n_random_starts=0, callback=[checkpoint_saver])
                 print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
-                print(colors.FAIL, "Inside BO\n", colors.ENDC)
+                print(colors.FAIL, "Inside BO", colors.ENDC)
                 print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
             except:
                 print(new_space)
