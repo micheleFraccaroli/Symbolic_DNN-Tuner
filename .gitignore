@@ -1,8 +1,8 @@
 others/
 checkpoints/
-logs/
+logs/*
 result/
-algorithm_logs/
+algorithm_logs/*
 hyperparameters.txt
 test/logs/
 __pycache__
