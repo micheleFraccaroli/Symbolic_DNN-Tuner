@@ -14,6 +14,7 @@ class LfiIntegration:
         self.decr_lr = Term('decr_lr')
         self.inc_neurons = Term('inc_neurons')
         self.inc_batch_size = Term('inc_batch_size')
+        self.data_augmentation = Term('data_augmentation')
         self.overfitting = Term('overfitting')
         self.underfitting = Term('underfitting')
         self.inc_loss = Term('inc_loss')
@@ -25,6 +26,7 @@ class LfiIntegration:
         self.action5 = Term('action', self.decr_lr, self.inc_loss, self.inc_loss)
         self.action6 = Term('action', self.inc_batch_size, self.floating_loss)
         self.action7 = Term('action', self.decr_lr, self.floating_loss)
+        self.action8 = Term('action', self.data_augmentation, self.overfitting)
 
     def create_evidence(self, t, d, bool):
         t1 = Term(str(t))

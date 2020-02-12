@@ -23,7 +23,7 @@ class controller:
         # self.d = diagnosis()
         self.ss = search_space()
         self.space = self.ss.search_sp()
-        self.tr = tuning_rules_symbolic(self.space, self.ss)
+        self.tr = tuning_rules_symbolic(self.space, self.ss, self)
         self.nsb = NeuralSymbolicBridge()
         self.lfi = LfiIntegration()
         self.symbolic_tuning = []
@@ -31,6 +31,7 @@ class controller:
         self.issues = []
         self.weight = 0.6
         self.new = None
+        self.da = None
         self.model = None
         self.params = None
         self.db = StoringExperience()
@@ -39,6 +40,9 @@ class controller:
 
     def set_case(self, new):
         self.new = new
+
+    def set_data_augmentation(self, da):
+        self.da = da
 
     def smooth(self, scalars):
         last = scalars[0]
@@ -60,7 +64,7 @@ class controller:
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model = self.nn.training(params, self.new, self.model)
+        self.score, self.history, self.model = self.nn.training(params, self.new, self.da)
 
         return -self.score[1]
 
@@ -108,7 +112,7 @@ class controller:
         print(colors.FAIL, "| START SYMBOLIC TUNING    ----------------------------------  |\n", colors.ENDC)
         # tuning_logs = open("algorithm_logs/tuning_logs.txt", "a")
         # new_space, self.model = self.tr.repair(self, self.symbolic_tuning, tuning_logs, self.model, self.params)
-        new_space, self.model = self.tr.repair(self, self.symbolic_tuning, self.model, self.params)
+        new_space, self.model = self.tr.repair(self.symbolic_tuning, self.model, self.params)
         # tuning_logs.close()
         self.issues = []
         print(colors.FAIL, "| END SYMBOLIC TUNING      ----------------------------------  |\n", colors.ENDC)

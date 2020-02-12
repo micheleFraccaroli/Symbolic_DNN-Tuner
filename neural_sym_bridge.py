@@ -15,7 +15,7 @@ class NeuralSymbolicBridge:
         :return: logic program
         """
         # reading model from file
-        f = open("symbolic/symbolic_analysis.pl", "r")
+        f = open("symbolic/symbolic_analysis_2.pl", "r")
         sym_model = f.read()
         f.close()
 

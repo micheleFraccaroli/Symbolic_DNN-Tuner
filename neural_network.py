@@ -8,6 +8,7 @@ from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
                                      BatchNormalization)
 from tensorflow.keras.optimizers import Adam
+from keras.preprocessing.image import ImageDataGenerator
 
 from datasets.cifar_dataset import cifar_data
 
@@ -115,7 +116,7 @@ class neural_network:
         input = model.inputs
         return Model(inputs=input, outputs=x)
 
-    def training(self, params, new, model_b):
+    def training(self, params, new, da):
         """
         Function for compiling and running training
         :return: training history
@@ -135,29 +136,45 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
         model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-        # rta = real_time_analysis()
-        # rta.set_epochs(self.epochs)
         es = EarlyStopping(monitor='val_loss', patience=15, verbose=1, mode='min')
 
-        history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
-                            verbose=1,
-                            validation_data=(self.test_data, self.test_labels),
-                            callbacks=[tensorboard, es]).history
+        if da:
+            datagen = ImageDataGenerator(
+                featurewise_center=True,
+                featurewise_std_normalization=True,
+                rotation_range=20,
+                width_shift_range=0.2,
+                height_shift_range=0.2,
+                horizontal_flip=True)
+
+            datagen.fit(self.train_data)
+
+            history = model.fit_generator(
+                datagen.flow(self.train_data, self.train_labels, batch_size=params['batch_size']), epochs=self.epochs,
+                verbose=1, validation_data=(self.test_data, self.test_labels), callbacks=[tensorboard, es]).history
+        else:
+
+            history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
+                                verbose=1,
+                                validation_data=(self.test_data, self.test_labels),
+                                callbacks=[tensorboard, es]).history
+
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights.h5"
         model.save_weights(weights_name)
-        return score, history, model#, rta
+        return score, history, model  # , rta
 
 
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 16, 'dr1_2': 0.002, 'unit_c2': 64, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.1, 'batch_size': 10}
+    default_params = {'unit_c1': 16, 'dr1_2': 0.002, 'unit_c2': 64, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.1,
+                      'batch_size': 10}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
