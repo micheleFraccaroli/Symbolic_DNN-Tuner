@@ -136,7 +136,7 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
