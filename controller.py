@@ -20,7 +20,6 @@ class controller:
         self.X_test = X_test
         self.Y_test = Y_test
         self.n_classes = n_classes
-        # self.d = diagnosis()
         self.ss = search_space()
         self.space = self.ss.search_sp()
         self.tr = tuning_rules_symbolic(self.space, self.ss, self)

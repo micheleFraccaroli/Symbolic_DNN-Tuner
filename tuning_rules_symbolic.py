@@ -47,14 +47,14 @@ class tuning_rules_symbolic:
             if hp.name == 'batch_size':
                 hp.low = params['batch_size'] - 1
 
-    def repair(self, sym_diseases, model, params):
+    def repair(self, sym_tuning, model, params):
         '''
         Method for fix the issues
         :return: new hp_space and new model
         '''
         del self.controller.model
-        for d in sym_diseases:
-            if d != 'reg_l2' or d != 'data_augmentation':
+        for d in sym_tuning:
+            if d != 'reg_l2' and d != 'data_augmentation':
                 d = "self." + d + "(params)"
             else:
                 d = "self." + d + "()"
