@@ -6,7 +6,6 @@ from problog.learning import lfi
 class LfiIntegration:
     def __init__(self):
         self.experience = []
-        self.e = open("algorithm_logs/evidence.txt","a")
         self.ove = Term('ove')
         self.und = Term('und')
         self.flo = Term('flo')
@@ -48,8 +47,9 @@ class LfiIntegration:
             evidence.append(e1)
             #evidence.append(e2)
 
-        self.e.write(str(evidence))
-        self.e.close()
+        e = open("algorithm_logs/evidence.txt", "a")
+        e.write(str(evidence))
+        e.close()
         return evidence
 
     def learning(self, improve, tuning, diagnosis):
