@@ -8,7 +8,7 @@ from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
                                      BatchNormalization)
 from tensorflow.keras.optimizers import Adam
-from keras.preprocessing.image import ImageDataGenerator
+from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from datasets.cifar_dataset import cifar_data
 
