@@ -40,7 +40,7 @@ class LfiIntegration:
 
     def evidence(self, improve, tuning, diagnosis):
         evidence = []
-        for t, d in zip(tuning[0], diagnosis[0]):
+        for t, d in zip(tuning, diagnosis):
             if improve:
                 e1, e2 = self.create_evidence(t, d, True)
             else:
