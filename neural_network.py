@@ -145,13 +145,12 @@ class neural_network:
 
         if da:
             datagen = ImageDataGenerator(
-                featurewise_center=True,
-                featurewise_std_normalization=True,
-                rotation_range=20,
-                width_shift_range=0.2,
-                height_shift_range=0.2,
-                horizontal_flip=True)
-
+                width_shift_range=0.1,
+                # randomly shift images vertically (fraction of total height)
+                height_shift_range=0.1,
+                fill_mode='nearest',
+                cval=0.,  # value used for fill_mode = "constant"
+                horizontal_flip=True)  # randomly flip images
             datagen.fit(self.train_data)
 
             history = model.fit_generator(
