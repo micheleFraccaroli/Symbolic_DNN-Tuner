@@ -24,7 +24,9 @@ class controller:
         self.space = self.ss.search_sp()
         self.tr = tuning_rules_symbolic(self.space, self.ss, self)
         self.nsb = NeuralSymbolicBridge()
-        self.lfi = LfiIntegration()
+        self.db = StoringExperience()
+        self.db.create_db()
+        self.lfi = LfiIntegration(self.db)
         self.symbolic_tuning = []
         self.symbolic_diagnosis = []
         self.issues = []
@@ -33,8 +35,6 @@ class controller:
         self.da = None
         self.model = None
         self.params = None
-        self.db = StoringExperience()
-        self.db.create_db()
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
 
     def set_case(self, new):
@@ -80,7 +80,7 @@ class controller:
 
         print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
-        self.db.insert(self.score[1], self.score[0])
+        self.db.insert_ranking(self.score[1], self.score[0])
 
         self.symbolic_tuning, self.symbolic_diagnosis = self.nsb.symbolic_reasoning(
             [self.history['loss'], self.smooth(self.history['loss']),
