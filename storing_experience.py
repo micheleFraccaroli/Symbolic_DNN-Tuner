@@ -70,7 +70,9 @@ class StoringExperience:
         conn = self.connection()
         c = conn.cursor()
         c.execute("SELECT * FROM ranking")
-        return self.formatting(c.fetchall())
+        res = self.formatting(c.fetchall())
+        conn.close()
+        return res
 
 
 if __name__ == '__main__':

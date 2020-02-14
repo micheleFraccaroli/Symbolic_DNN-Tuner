@@ -47,9 +47,9 @@ class LfiIntegration:
         action = ""
         for t, d in zip(tuning, diagnosis):
             if improve:
-                e1, e2 = self.create_evidence(t, d, True)
+                e1, e2 = self.create_evidence(t, d, improve)
             else:
-                e1, e2 = self.create_evidence(t, d, False)
+                e1, e2 = self.create_evidence(t, d, improve)
             evidence.append(e1)
             # evidence.append(e2)
 

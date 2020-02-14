@@ -15,7 +15,4 @@ class ImprovementChecker:
             if val_loss > l:
                 loss_check = False
                 break
-        if not acc_check:
-            return False
-        else:
-            return True
+        return acc_check

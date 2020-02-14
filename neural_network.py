@@ -25,8 +25,6 @@ class neural_network:
         self.test_data /= 255
         self.n_classes = n_classes
         self.epochs = 200
-        # self.weight_decay = 1e-4
-        # self.batch_size = 96
 
     def build_network(self, params, new):
         """
