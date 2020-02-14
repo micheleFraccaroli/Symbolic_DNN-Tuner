@@ -4,8 +4,8 @@ t(0.7)::und.
 t(0.85)::flo.
 
 action(reg_l2, overfitting) :- eve.
-action(inc_dropout, overfitting) :- ove.
-action(data_augmentation, overfitting) :- \+ove.
+action(inc_dropout, overfitting) :- \+ove.
+action(data_augmentation, overfitting) :- ove.
 
 action(decr_lr, underfitting) :- \+und.
 action(inc_neurons, underfitting) :- und.

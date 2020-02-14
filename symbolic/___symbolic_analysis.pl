@@ -16,7 +16,7 @@ gap_tr_te_acc :- a(A), va(VA), last(A,LTA), last(VA,ScoreA),
 gap_tr_te_loss :- l(L), vl(VL), last(L,LTL), last(VL,ScoreL),
                 Res is LTL - ScoreL, abs2(Res,Res1), Res1 > 0.2.
 low_acc :- a(A), last(A,LTA),
-                Res is LTA - 1.0, abs2(Res,Res1), Res1 > 0.37.
+                Res is LTA - 1.0, abs2(Res,Res1), Res1 > 0.35.
 high_loss :- l(L), last(L,LTL), isclose(LTL,0,1.7).
 growing_loss_trend :- add_to_UpList(sl,usl), length(usl,length_u), G is (usl*100)/length_u, G < 50.
 up_down_loss :- add_to_UpList(sl,usl), add_to_DownList(sl,dsl), isclose(usl,dsl,150), usl > 0, dsl > 0.
@@ -30,19 +30,17 @@ problem(floating_loss) :- up_down_loss.
 
 % TUNING SECTION ------------------------------------------------------------------------------------------------------
 
-% 0.99::eve.
-% 0.6::ove.
+% 0.8::ove.
 % 0.7::und.
 % 0.85::flo.
 
-action(reg_l2, overfitting) :- problem(overfitting), eve.
-action(inc_dropout, overfitting) :- problem(overfitting), ove.
-action(data_augmentation, overfitting) :- problem(overfitting), \+ove.
+action(reg_l2, overfitting) :- problem(overfitting), ove.
+action(inc_dropout, overfitting) :- problem(overfitting), \+ove.
 
 action(decr_lr, underfitting) :- problem(underfitting), \+und.
 action(inc_neurons, underfitting) :- problem(underfitting), und.
 
-action(decr_lr, inc_loss) :- problem(inc_loss), eve.
+action(decr_lr, inc_loss) :- problem(inc_loss).
 
 action(inc_batch_size, floating_loss) :- problem(floating_loss), flo.
 action(decr_lr, floating_loss) :- problem(floating_loss), \+flo.
