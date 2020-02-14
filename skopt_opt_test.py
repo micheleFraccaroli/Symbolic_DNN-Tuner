@@ -1,6 +1,6 @@
 import time
 
-from dataset.cifar_dataset import mnist
+from datasets.cifar_dataset import cifar_data
 from skopt import gp_minimize
 from skopt.callbacks import CheckpointSaver
 from skopt.space import Integer, Real
@@ -32,8 +32,8 @@ def objective(**params):
     return -score[1]
 
 
-# X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
-X_train, X_test, Y_train, Y_test, n_classes = mnist()
+X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
+#X_train, X_test, Y_train, Y_test, n_classes = mnist()
 checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
 
 # optimization

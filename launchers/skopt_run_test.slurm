@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --job-name=IJCAI_TEST
+#SBATCH --job-name=BO_TEST
 #SBATCH --nodes=1
 #SBATCH --mem=100GB
 #SBATCH --account=IscrC_TBD
