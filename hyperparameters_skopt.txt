@@ -14,3 +14,7 @@
 {'unit_c1': 64, 'dr1_2': 0.04026812808545276, 'unit_c2': 128, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.010730978665124789, 'batch_size': 16}
 {'unit_c1': 16, 'dr1_2': 0.3, 'unit_c2': 64, 'unit_d': 256, 'dr_f': 0.03, 'learning_rate': 0.019444111302088053, 'batch_size': 128}
 {'unit_c1': 52, 'dr1_2': 0.16540973023850963, 'unit_c2': 66, 'unit_d': 283, 'dr_f': 0.39216851721964785, 'learning_rate': 0.1, 'batch_size': 108}
+{'unit_c1': 34, 'dr1_2': 0.28869368159811903, 'unit_c2': 100, 'unit_d': 470, 'dr_f': 0.43858170423337595, 'learning_rate': 0.08994784168975295, 'batch_size': 39}
+{'unit_c1': 17, 'dr1_2': 0.271367972657868, 'unit_c2': 88, 'unit_d': 307, 'dr_f': 0.09697921029763552, 'learning_rate': 0.07178314237776318, 'batch_size': 72}
+{'unit_c1': 64, 'dr1_2': 0.002, 'unit_c2': 128, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 1e-05, 'batch_size': 128}
+{'unit_c1': 64, 'dr1_2': 0.2363910137656026, 'unit_c2': 73, 'unit_d': 510, 'dr_f': 0.48030604265358134, 'learning_rate': 0.0915230215460057, 'batch_size': 62}

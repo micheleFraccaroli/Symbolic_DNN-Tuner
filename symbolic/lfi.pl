@@ -1,17 +1,14 @@
 0.99::eve.
-t(0.6)::ove.
-t(0.7)::und.
-t(0.85)::flo.
 
 action(reg_l2, overfitting) :- eve.
-action(inc_dropout, overfitting) :- \+ove.
-action(data_augmentation, overfitting) :- ove.
-
-action(decr_lr, underfitting) :- \+und.
-action(inc_neurons, underfitting) :- und.
-
 action(decr_lr, inc_loss) :- eve.
 
-action(inc_batch_size, floating_loss) :- flo.
-action(decr_lr, floating_loss) :- \+flo.
+t(0.4)::action(inc_dropout, overfitting).
+t(0.6)::action(data_augmentation, overfitting).
+
+t(0.3)::action(decr_lr, underfitting).
+t(0.7)::action(inc_neurons, underfitting).
+
+t(0.85)::action(inc_batch_size, floating_loss).
+t(0.15)::action(decr_lr, floating_loss).
 

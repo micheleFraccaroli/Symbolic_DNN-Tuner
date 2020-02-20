@@ -56,11 +56,10 @@ class neural_network:
 
         model = Model(inputs=inputs, outputs=x)
 
-        if not new:
-            model_json = model.to_json()
-            model_name = "Model/model.json"
-            with open(model_name, 'w') as json_file:
-                json_file.write(model_json)
+        model_json = model.to_json()
+        model_name = "Model/model.json"
+        with open(model_name, 'w') as json_file:
+            json_file.write(model_json)
 
         return model
 
@@ -134,7 +133,7 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="logs2/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])

@@ -40,18 +40,21 @@ problem(floating_loss) :- up_down_loss.
 % TUNING SECTION -------------------------------------------------------------------------------------------------------
 
 % 0.99::eve.
+% 0.6::ove.
+% 0.7::und.
+% 0.85::flo.
 
-% action(reg_l2, overfitting) :- problem(overfitting), eve.
+action(reg_l2, overfitting) :- problem(overfitting), eve.
 
-% 0.4::action(inc_dropout, overfitting) :- problem(overfitting).
-% 0.6::action(data_augmentation, overfitting) :- problem(overfitting).
+action(inc_dropout, overfitting) :- problem(overfitting), \+ove.
+action(data_augmentation, overfitting) :- problem(overfitting), ove.
 
-% 0.3::action(decr_lr, underfitting) :- problem(underfitting).
-% 0.7::action(inc_neurons, underfitting) :- problem(underfitting).
+action(decr_lr, underfitting) :- problem(underfitting), \+und.
+action(inc_neurons, underfitting) :- problem(underfitting), und.
 
-% action(decr_lr, inc_loss) :- problem(inc_loss), eve.
+action(decr_lr, inc_loss) :- problem(inc_loss), eve.
 
-% 0.85::action(inc_batch_size, floating_loss) :- problem(floating_loss).
-% 0.15::action(decr_lr, floating_loss) :- problem(floating_loss).
+action(inc_batch_size, floating_loss) :- problem(floating_loss), flo.
+action(decr_lr, floating_loss) :- problem(floating_loss), \+flo.
 
 query(action(_,_)).

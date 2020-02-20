@@ -1,4 +1,5 @@
 import sys
+import re
 from problog.program import PrologString
 from problog import get_evaluatable
 from problog.tasks import sample
@@ -15,6 +16,7 @@ class NeuralSymbolicBridge:
         :return: logic program
         """
         # reading model from file
+        # f = open("symbolic/symbolic_analysis.pl", "r")
         f = open("symbolic/symbolic_analysis.pl", "r")
         sym_model = f.read()
         f.close()
@@ -29,12 +31,21 @@ class NeuralSymbolicBridge:
             sym_facts = sym_facts + i + "(" + str(fa) + ").\n"
 
         # return the assembled model
-        return PrologString(sym_facts + sym_prob + "\n" + sym_model)
+        return PrologString(sym_facts + "\n" + sym_prob + "\n" + sym_model)
 
     def edit_probs(self, sym_model):
-        f = open("symbolic/sym_prob.pl", "w")
-        new_sym_prob = sym_model[: + sym_model.find("action")]
-        f.write(new_sym_prob)
+        # f = open("symbolic/lfi.pl", "w")
+        # new_sym_prob = sym_model[: + sym_model.find("action")]
+        # f.write(new_sym_prob)
+        # f.close()
+        prev_model = open("symbolic/sym_prob.pl","r").read()
+
+        x = re.findall("[0-9][.].*[:][:]['a']", sym_model)
+        for i in range(len(x)):
+            xx = re.findall("[0-9][.].*[:][:]['a']", prev_model)
+            new = re.sub(xx[i], x[i], sym_model)
+        f = open("symbolic/sym_prob.pl","w")
+        f.write(new)
         f.close()
 
     def symbolic_reasoning(self, facts, diagnosis_logs, tuning_logs):

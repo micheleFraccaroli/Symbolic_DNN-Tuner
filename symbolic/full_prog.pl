@@ -2,7 +2,7 @@
 
 % DIAGNOSIS SECTION ----------------------------------------------------------------------------------------------------
 
-% UTILITY
+% utility
 abs2(X,Y) :- Y is abs(X).
 isclose(X,Y,W) :- D is X - Y, abs2(D,D1), D1 =< W.
 add_to_UpList([_],0).
@@ -18,7 +18,7 @@ add_to_DownList([H|[H1|T]], U) :- add_to_DownList([H1|T], U1),
     ;   U is U1+0
     ).
 
-% ANALYSIS
+% analysis
 gap_tr_te_acc :- a(A), va(VA), last(A,LTA), last(VA,ScoreA),
                 Res is LTA - ScoreA, abs2(Res,Res1), Res1 > 0.2.
 gap_tr_te_loss :- l(L), vl(VL), last(L,LTL), last(VL,ScoreL),
@@ -30,28 +30,11 @@ growing_loss_trend :- add_to_UpList(sl,Usl), length(sl,Length_u), G is (Usl*100)
 up_down_acc :- add_to_UpList(sa,Usa), add_to_DownList(sa,Dsa), isclose(Usa,Dsa,150), Usa > 0, Dsa > 0.
 up_down_loss :- add_to_UpList(sl,Usl), add_to_DownList(sl,Dsl), isclose(Usl,Dsl,150), Usl > 0, Dsl > 0.
 
-% POSSIBLE PROBLEMS
+% problems
 problem(overfitting) :- gap_tr_te_acc; gap_tr_te_loss.
 problem(underfitting) :- low_acc; high_loss.
 problem(inc_loss) :- growing_loss_trend.
 problem(floating_loss) :- up_down_loss.
 
-
-% TUNING SECTION -------------------------------------------------------------------------------------------------------
-
-% 0.99::eve.
-
-% action(reg_l2, overfitting) :- problem(overfitting), eve.
-
-% 0.4::action(inc_dropout, overfitting) :- problem(overfitting).
-% 0.6::action(data_augmentation, overfitting) :- problem(overfitting).
-
-% 0.3::action(decr_lr, underfitting) :- problem(underfitting).
-% 0.7::action(inc_neurons, underfitting) :- problem(underfitting).
-
-% action(decr_lr, inc_loss) :- problem(inc_loss), eve.
-
-% 0.85::action(inc_batch_size, floating_loss) :- problem(floating_loss).
-% 0.15::action(decr_lr, floating_loss) :- problem(floating_loss).
 
 query(action(_,_)).
