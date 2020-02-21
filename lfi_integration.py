@@ -43,8 +43,6 @@ class LfiIntegration:
 
     def evidence(self, improve, tuning, diagnosis):
         evidence = []
-        other = []
-        action = ""
         for t, d in zip(tuning, diagnosis):
             if improve:
                 e1, e2 = self.create_evidence(t, d, improve)
@@ -67,15 +65,5 @@ class LfiIntegration:
         to_learn = f1.read()
         f1.close()
         _, weights, _, _, lfi_problem = lfi.run_lfi(PrologString(to_learn), self.experience)
-
-        # temp1 = to_learn.splitlines()
-        # temp2 = []
-        # for i, t in zip(weights, temp1):
-        #     temp2.append('t(' + str(i) + ')::' + t[t.find("::") + 2:t.find("\n")] + ".")
-        #
-        # new_f1 = open("symbolic/lfi.pl", "w")
-        # for i in temp2:
-        #     new_f1.write(i + "\n")
-        # new_f1.close()
 
         return weights, lfi_problem

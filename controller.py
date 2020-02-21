@@ -90,9 +90,11 @@ class controller:
             diagnosis_logs, tuning_logs)
 
         improv = self.imp_checker.checker(self.score[1], self.score[0])
-        _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning, self.symbolic_diagnosis)
-        sy_model = lfi_problem.get_model()
-        self.nsb.edit_probs(sy_model)
+
+        if improv is not None:
+            _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning, self.symbolic_diagnosis)
+            sy_model = lfi_problem.get_model()
+            self.nsb.edit_probs(sy_model)
 
         diagnosis_logs.close()
         tuning_logs.close()

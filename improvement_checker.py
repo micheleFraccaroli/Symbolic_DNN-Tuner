@@ -5,6 +5,9 @@ class ImprovementChecker:
 
     def checker(self, val_acc, val_loss):
         acc, loss = self.db.get()
+        if len(acc) == 1:
+            return None
+
         acc_check = True
         loss_check = True
         for a in acc:
