@@ -80,7 +80,13 @@ class controller:
 
         print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
+        improv = self.imp_checker.checker(self.score[1], self.score[0])
         self.db.insert_ranking(self.score[1], self.score[0])
+
+        if improv is not None:
+            _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning, self.symbolic_diagnosis)
+            sy_model = lfi_problem.get_model()
+            self.nsb.edit_probs(sy_model)
 
         self.symbolic_tuning, self.symbolic_diagnosis = self.nsb.symbolic_reasoning(
             [self.history['loss'], self.smooth(self.history['loss']),
@@ -88,13 +94,6 @@ class controller:
              self.history['accuracy'],
              self.history['val_loss'], self.history['val_accuracy']],
             diagnosis_logs, tuning_logs)
-
-        improv = self.imp_checker.checker(self.score[1], self.score[0])
-
-        if improv is not None:
-            _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning, self.symbolic_diagnosis)
-            sy_model = lfi_problem.get_model()
-            self.nsb.edit_probs(sy_model)
 
         diagnosis_logs.close()
         tuning_logs.close()

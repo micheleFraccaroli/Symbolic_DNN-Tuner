@@ -86,12 +86,9 @@ class NeuralSymbolicBridge:
                     inner[str(j)[str(j).find("(") + 1:str(j).find(",")]] = symbolic_evaluation[j]
             res[i] = inner
 
-        '''
-        fai controllo su dizionario di dizionari e ricava un fix per ogni problema (prendi il più probabile).
-        '''
         for i in res.keys():
             diagnosis.append(i)
-            tuning.append(max(res[i]))
+            tuning.append(max(res[i], key=res[i].get))
 
         diagnosis_logs.write(str(diagnosis))
         tuning_logs.write(str(tuning))

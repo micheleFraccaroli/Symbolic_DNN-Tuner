@@ -30,12 +30,15 @@ controller = controller(X_train, Y_train, X_test, Y_test, n_classes)
 space = {}
 start_time = time.time()
 
+
 def update_space(new_space):
     global search_space
     search_space = new_space
     return search_space
 
+
 search_space = update_space(spa)
+
 
 def objective(params):
     space = {}
@@ -55,6 +58,17 @@ def start_analisys():
     return new_space, to_optimize
 
 
+def check_continuing_BO(new_space, x_iters, func_vals):
+    func_vals = func_vals.tolist()
+    for x in x_iters:
+        for n, i in zip(new_space, x):
+            if i < n.low or i > n.high:
+                _ = func_vals.pop(x_iters.index(x))
+                x_iters.remove(x)
+                break
+    return x_iters, func_vals
+
+
 def start(search_space, iter):
     """
     Starting bayesian Optimization
@@ -66,7 +80,7 @@ def start(search_space, iter):
     # optimization
     controller.set_case(False)
     search_res = gp_minimize(objective, search_space, acq_func='EI', n_calls=1, n_random_starts=1,
-                                 callback=[checkpoint_saver])
+                             callback=[checkpoint_saver])
 
     # K.clear_session()
     new_space, to_optimize = start_analisys()
@@ -86,16 +100,19 @@ def start(search_space, iter):
                 print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
             except:
                 print(new_space)
-                search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI',
+                res.x_iters, res.func_vals = check_continuing_BO(new_space, res.x_iters, res.func_vals)
+                search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
-                                         n_random_starts=1, callback=[checkpoint_saver])
+                                         n_random_starts=0, callback=[checkpoint_saver])
+                print(colors.FAIL, "-----------------------------------------------------", colors.ENDC)
+                print(colors.WARNING, "Other BO", colors.ENDC)
+                print(colors.FAIL, "-----------------------------------------------------", colors.ENDC)
         else:
             search_space = update_space(new_space)
             search_res = gp_minimize(objective, new_space, acq_func='EI', n_calls=1, n_random_starts=1,
                                      callback=[checkpoint_saver])
 
         new_space, to_optimize = start_analisys()
-
 
     return search_res
 

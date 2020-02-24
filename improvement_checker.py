@@ -5,11 +5,15 @@ class ImprovementChecker:
 
     def checker(self, val_acc, val_loss):
         acc, loss = self.db.get()
-        if len(acc) == 1:
+        if len(acc) == 0:
             return None
 
         acc_check = True
         loss_check = True
+
+        if val_acc < acc[len(acc)-1]:
+            acc_check = False
+        '''
         for a in acc:
             if val_acc < a:
                 acc_check = False
@@ -18,4 +22,5 @@ class ImprovementChecker:
             if val_loss > l:
                 loss_check = False
                 break
+        '''
         return acc_check
