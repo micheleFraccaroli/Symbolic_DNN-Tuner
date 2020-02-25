@@ -100,10 +100,10 @@ def start(search_space, iter):
                 print(colors.WARNING, "-----------------------------------------------------", colors.ENDC)
             except:
                 print(new_space)
-                res.x_iters, res.func_vals = check_continuing_BO(new_space, res.x_iters, res.func_vals)
-                search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
+                #res.x_iters, res.func_vals = check_continuing_BO(new_space, res.x_iters, res.func_vals)
+                search_res = gp_minimize(objective, new_space, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
-                                         n_random_starts=0, callback=[checkpoint_saver])
+                                         n_random_starts=1, callback=[checkpoint_saver])
                 print(colors.FAIL, "-----------------------------------------------------", colors.ENDC)
                 print(colors.WARNING, "Other BO", colors.ENDC)
                 print(colors.FAIL, "-----------------------------------------------------", colors.ENDC)

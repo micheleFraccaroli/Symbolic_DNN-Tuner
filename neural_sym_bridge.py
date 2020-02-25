@@ -89,6 +89,7 @@ class NeuralSymbolicBridge:
         for i in res.keys():
             if i == "overfitting":
                 res[i]["reg_l2"] = 0
+                tuning.append("reg_l2")
             diagnosis.append(i)
             tuning.append(max(res[i], key=res[i].get))
 
