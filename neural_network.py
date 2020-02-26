@@ -169,9 +169,10 @@ class neural_network:
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 16, 'dr1_2': 0.002, 'unit_c2': 64, 'unit_d': 512, 'dr_f': 0.5, 'learning_rate': 0.1,
-                      'batch_size': 10}
+    default_params = {'unit_c1': 64, 'dr1_2': 0.24985372683778614, 'unit_c2': 127, 'unit_d': 512,
+                      'dr_f': 0.4083247361856317, 'learning_rate': 0.035163468022334166, 'batch_size': 50,
+                      'reg': 0.06729585440502675}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model = n.training(default_params, False, None)
+    score, history, model = n.training(default_params, True, True)
