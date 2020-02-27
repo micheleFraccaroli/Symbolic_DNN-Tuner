@@ -161,7 +161,7 @@ class neural_network:
                                 callbacks=[tensorboard, es]).history
 
         score = model.evaluate(self.test_data, self.test_labels)
-        weights_name = "Weights/weights.h5"
+        weights_name = "Weights/weights-{}.h5".format(time())
         model.save_weights(weights_name)
         return score, history, model  # , rta
 
@@ -169,10 +169,12 @@ class neural_network:
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 64, 'dr1_2': 0.24985372683778614, 'unit_c2': 127, 'unit_d': 512,
-                      'dr_f': 0.4083247361856317, 'learning_rate': 0.035163468022334166, 'batch_size': 50,
-                      'reg': 0.06729585440502675}
+    default_params = {'unit_c1': 37, 'dr1_2': 0.08075225090559862, 'unit_c2': 97, 'unit_d': 436, 'dr_f': 0.18413154855938407, 'learning_rate': 0.03504090438475931, 'batch_size': 256, 'reg': 0.028173467805020478}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
     score, history, model = n.training(default_params, True, True)
+
+    f2 = open("history3.txt", "w")
+    f2.write(str(history))
+    f2.close()

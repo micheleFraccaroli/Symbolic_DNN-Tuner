@@ -11,7 +11,7 @@ class ImprovementChecker:
         acc_check = True
         loss_check = True
 
-        if val_acc < acc[len(acc)-1]:
+        if val_acc < acc[len(acc) - 1]:
             acc_check = False
         '''
         for a in acc:
