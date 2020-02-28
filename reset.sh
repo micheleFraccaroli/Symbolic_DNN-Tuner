@@ -1,4 +1,4 @@
-rm -rf logs/*
+rm -rf log_folder/logs/*
 rm -rf algorithm_logs/*
 rm -rf Model/*
 rm -rf Weights/*

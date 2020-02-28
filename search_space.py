@@ -6,6 +6,7 @@ class search_space:
         self.epsilon_r1 = 10**-3
         self.epsilon_r2 = 10**2
         self.epsilon_i = 2
+        self.epsilon_d = 4
 
     def search_sp(self):
         self.search_space = [
@@ -27,7 +28,10 @@ class search_space:
                 np = Real(abs(params[p]/self.epsilon_r2), (params[p]/self.epsilon_r1), name=p)
                 new_Hp.append(np)
             elif type(params[p]) == int:
-                np = Integer(abs(params[p] - self.epsilon_i), params[p] + self.epsilon_i, name=p)
+                if p == 'new_fc':
+                    np = Integer(abs(int(params[p] / self.epsilon_d)), params[p] * self.epsilon_i, name=p)
+                else:
+                    np = Integer(abs(params[p] - self.epsilon_i), params[p] + self.epsilon_i, name=p)
                 new_Hp.append(np)
         return self.search_space + new_Hp
 

@@ -32,6 +32,7 @@ class controller:
         self.issues = []
         self.weight = 0.6
         self.new = None
+        self.new_fc = None
         self.da = None
         self.model = None
         self.params = None
@@ -39,6 +40,9 @@ class controller:
 
     def set_case(self, new):
         self.new = new
+
+    def add_fc_layer(self, new_fc, c):
+        self.new_fc = [new_fc,c]
 
     def set_data_augmentation(self, da):
         self.da = da
@@ -63,7 +67,7 @@ class controller:
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model = self.nn.training(params, self.new, self.da)
+        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.da)
 
         return -self.score[1]
 

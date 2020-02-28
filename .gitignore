@@ -1,16 +1,9 @@
 others/
 checkpoints/
-logs/*
-result/
+log_folder
 algorithm_logs/*
 hyperparameters.txt
-test/logs/
 __pycache__
 Weights
 Model
-logs2
-logs_hyperopt
-logs_test
-logs_skopt
 database/*
-test_loss.csv

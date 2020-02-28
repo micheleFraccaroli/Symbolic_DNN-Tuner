@@ -8,6 +8,7 @@ t(0.6)::action(data_augmentation, overfitting).
 
 t(0.3)::action(decr_lr, underfitting).
 t(0.7)::action(inc_neurons, underfitting).
+t(0.6)::action(new_fc_layer, underfitting).
 
 t(0.85)::action(inc_batch_size, floating_loss).
 t(0.15)::action(decr_lr, floating_loss).

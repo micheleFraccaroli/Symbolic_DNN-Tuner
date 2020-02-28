@@ -15,16 +15,17 @@ from datasets.cifar_dataset import cifar_data
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train
-        self.train_labels = Y_train
-        self.test_data = X_test
-        self.test_labels = Y_test
+        self.train_data = X_train[:1000]
+        self.train_labels = Y_train[:1000]
+        self.test_data = X_test[:600]
+        self.test_labels = Y_test[:600]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 10
+        self.last_dense = 0
 
     def build_network(self, params, new):
         """
@@ -63,14 +64,15 @@ class neural_network:
 
         return model
 
-    def insert_layer(self, model, layer_regex, params, position='after'):
+    def insert_layer(self, model, layer_regex, params, dense, num=0, position='after'):
         # Auxiliary dictionary to describe the network graph
         K.clear_session()
         network_dict = {'input_layers_of': {}, 'new_output_tensor_of': {}}
         # Set the input layers of each layer
         for layer in model.layers:
-            if 'conv' in layer.name:
-                layer.kernel_regularizer = reg.l2(params['reg'])
+            if not dense:
+                if 'conv' in layer.name:
+                    layer.kernel_regularizer = reg.l2(params['reg'])
             for node in layer.outbound_nodes:
                 layer_name = node.outbound_layer.name
                 if layer_name not in network_dict['input_layers_of']:
@@ -91,7 +93,7 @@ class neural_network:
                 layer_input = layer_input[0]
 
             # Insert layer if name matches the regular expression
-            if re.match(layer_regex, layer.name):
+            if re.match(layer_regex, layer.name) and layer.output.shape[1] != 10:
                 if position == 'replace':
                     x = layer_input
                 elif position == 'after':
@@ -101,19 +103,30 @@ class neural_network:
                 else:
                     raise ValueError('position must be: before, after or replace')
                 if not 'Softmax' in layer.output.op.inputs._inputs[0].name:
-                    x = BatchNormalization()(x)
+                    if not dense:
+                        x = BatchNormalization()(x)
+                    else:
+                        if num > 0:
+                            for n in range(num):
+                                x = Dense(params['new_fc'],name='dense_{}'.format(time()))(x)
+                        else:
+                            x = Dense(params['new_fc'], name='dense_{}'.format(time()))(x)
+                        self.last_dense = x.shape[1]
 
                 if position == 'before':
                     x = layer(x)
             else:
-                x = layer(layer_input)
+                if layer.output.shape[1] == 10 and re.match(layer_regex, layer.name):
+                    x = Dense(layer.output.shape[1],name='final')(x)
+                else:
+                    x = layer(layer_input)
 
             # Set new output tensor (the original one, or the one of the inserted layer)
             network_dict['new_output_tensor_of'].update({layer.name: x})
         input = model.inputs
         return Model(inputs=input, outputs=x)
 
-    def training(self, params, new, da):
+    def training(self, params, new, new_fc, da):
         """
         Function for compiling and running training
         :return: training history
@@ -124,8 +137,12 @@ class neural_network:
         model = None
 
         model = self.build_network(params, new)
-        if new:
-            model = self.insert_layer(model, '.*activation.*', params)
+        if new or new_fc:
+            if new_fc is not None:
+                if new_fc[0]:
+                    model = self.insert_layer(model, '.*dense.*', params, True, num=new_fc[1])
+            if new:
+                model = self.insert_layer(model, '.*activation.*', params, False)
         print(model.summary())
         try:
             model.load_weights("Weights/weights.h5")
@@ -133,7 +150,7 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="logs/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(log_dir="log_folder/logs/{}-{}".format(time(), params['learning_rate']))
 
         # compiling and training
         adam = Adam(lr=params['learning_rate'])
@@ -169,12 +186,14 @@ class neural_network:
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 
-    default_params = {'unit_c1': 37, 'dr1_2': 0.08075225090559862, 'unit_c2': 97, 'unit_d': 436, 'dr_f': 0.18413154855938407, 'learning_rate': 0.03504090438475931, 'batch_size': 256, 'reg': 0.028173467805020478}
+    default_params = {'unit_c1': 37, 'dr1_2': 0.08075225090559862, 'unit_c2': 97, 'unit_d': 436,
+                      'dr_f': 0.18413154855938407, 'learning_rate': 0.03504090438475931, 'batch_size': 256,
+                      'reg': 0.028173467805020478, 'new_fc': 257}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model = n.training(default_params, True, True)
-
-    f2 = open("history3.txt", "w")
+    score, history, model = n.training(default_params, False, [True, 8], None)
+    print(model.summary())
+    f2 = open("algorithm_logs/history.txt", "w")
     f2.write(str(history))
     f2.close()
