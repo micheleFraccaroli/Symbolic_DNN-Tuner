@@ -20,16 +20,16 @@ from LOLR import Lolr
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train[:10000]
-        self.train_labels = Y_train[:10000]
-        self.test_data = X_test[:6000]
-        self.test_labels = Y_test[:6000]
+        self.train_data = X_train
+        self.train_labels = Y_train
+        self.test_data = X_test
+        self.test_labels = Y_test
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 10
+        self.epochs = 200
         self.last_dense = 0
 
     def build_network(self, params, new):
