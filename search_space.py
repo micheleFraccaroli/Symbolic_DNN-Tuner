@@ -1,10 +1,10 @@
-from skopt.space import Integer, Real
+from skopt.space import Integer, Real, Categorical
 
 
 class search_space:
     def __init__(self):
-        self.epsilon_r1 = 10**-3
-        self.epsilon_r2 = 10**2
+        self.epsilon_r1 = 10 ** -3
+        self.epsilon_r2 = 10 ** 2
         self.epsilon_i = 2
         self.epsilon_d = 4
 
@@ -15,8 +15,9 @@ class search_space:
             Integer(64, 128, name='unit_c2'),
             Integer(256, 512, name='unit_d'),
             Real(0.03, 0.5, name='dr_f'),
-            Real(10 ** -5, 10 ** -1, name='learning_rate'),
+            Real(10 ** -7, 10 ** -1, name='learning_rate'),
             Integer(16, 256, name='batch_size'),
+            Categorical(['Adam','Adamax','Adadelta','Adagrad','SGD','RMSProp'], name='optimizer')
         ]
 
         return self.search_space
@@ -25,7 +26,7 @@ class search_space:
         new_Hp = []
         for p in params.keys():
             if type(params[p]) == float:
-                np = Real(abs(params[p]/self.epsilon_r2), (params[p]/self.epsilon_r1), name=p)
+                np = Real(abs(params[p] / self.epsilon_r2), (params[p] / self.epsilon_r1), name=p)
                 new_Hp.append(np)
             elif type(params[p]) == int:
                 if p == 'new_fc':

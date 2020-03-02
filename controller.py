@@ -67,7 +67,7 @@ class controller:
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.da)
+        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.da, self.space)
 
         return -self.score[1]
 

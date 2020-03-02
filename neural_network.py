@@ -1,4 +1,7 @@
 import re
+import numpy as np
+import sys
+import matplotlib.pyplot as plt
 from time import time
 
 from tensorflow.keras import Model
@@ -7,24 +10,26 @@ from tensorflow.keras import regularizers as reg
 from tensorflow.keras.callbacks import TensorBoard, EarlyStopping
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
                                      BatchNormalization)
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras.optimizers import *
+from tensorflow_core.python.keras.optimizer_v2.rmsprop import *
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from datasets.cifar_dataset import cifar_data
+from LOLR import Lolr
 
 
 class neural_network:
     def __init__(self, X_train, Y_train, X_test, Y_test, n_classes):
-        self.train_data = X_train
-        self.train_labels = Y_train
-        self.test_data = X_test
-        self.test_labels = Y_test
+        self.train_data = X_train[:10000]
+        self.train_labels = Y_train[:10000]
+        self.test_data = X_test[:6000]
+        self.test_labels = Y_test[:6000]
         self.train_data = self.train_data.astype('float32')
         self.test_data = self.test_data.astype('float32')
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 10
         self.last_dense = 0
 
     def build_network(self, params, new):
@@ -108,7 +113,7 @@ class neural_network:
                     else:
                         if num > 0:
                             for n in range(num):
-                                x = Dense(params['new_fc'],name='dense_{}'.format(time()))(x)
+                                x = Dense(params['new_fc'], name='dense_{}'.format(time()))(x)
                         else:
                             x = Dense(params['new_fc'], name='dense_{}'.format(time()))(x)
                         self.last_dense = x.shape[1]
@@ -117,7 +122,7 @@ class neural_network:
                     x = layer(x)
             else:
                 if layer.output.shape[1] == 10 and re.match(layer_regex, layer.name):
-                    x = Dense(layer.output.shape[1],name='final')(x)
+                    x = Dense(layer.output.shape[1], name='final')(x)
                 else:
                     x = layer(layer_input)
 
@@ -126,7 +131,21 @@ class neural_network:
         input = model.inputs
         return Model(inputs=input, outputs=x)
 
-    def training(self, params, new, new_fc, da):
+    def lolr_checking(self, mdl, space, lr, batch, trd, trl, ted, tel):
+        for hp in space:
+            if hp.name == 'learning_rate':
+                min_lr = hp.low
+                max_lr = hp.high
+
+        lolr = Lolr(min_lr, max_lr, steps_per_epoch=np.ceil(len(trd) / batch))
+
+        adam = Adamax(lr=min_lr)
+        mdl.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+        mdl.fit(trd, trl, epochs=1, batch_size=batch, verbose=1, validation_data=(ted, tel),
+                callbacks=[lolr])
+        return lolr.losses, lolr.lrs
+
+    def training(self, params, new, new_fc, da, space):
         """
         Function for compiling and running training
         :return: training history
@@ -152,19 +171,27 @@ class neural_network:
         # tensorboard logs
         tensorboard = TensorBoard(log_dir="log_folder/logs/{}-{}".format(time(), params['learning_rate']))
 
+        # losses, lrs = self.lolr_checking(model, space, params['learning_rate'], params['batch_size'], self.train_data,
+        #                                  self.train_labels, self.test_data, self.test_labels)
+        # plt.xscale('log')
+        # plt.xlabel('learning_rate')
+        # plt.ylabel('loss')
+        # plt.plot(lrs, losses)
+
         # compiling and training
-        adam = Adam(lr=params['learning_rate'])
-        model.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
+        #adam = Adam(lr=params['learning_rate'])
+        _opt = params['optimizer'] + "(learning_rate=" + str(params['learning_rate']) + ")"
+        opt = eval(_opt)
+        model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
         es = EarlyStopping(monitor='val_loss', patience=15, verbose=1, mode='min')
 
         if da:
             datagen = ImageDataGenerator(
                 width_shift_range=0.1,
-                # randomly shift images vertically (fraction of total height)
                 height_shift_range=0.1,
                 fill_mode='nearest',
-                cval=0.,  # value used for fill_mode = "constant"
-                horizontal_flip=True)  # randomly flip images
+                cval=0.,
+                horizontal_flip=True)
             datagen.fit(self.train_data)
 
             history = model.fit_generator(

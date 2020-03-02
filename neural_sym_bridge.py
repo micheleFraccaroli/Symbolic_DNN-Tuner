@@ -93,6 +93,6 @@ class NeuralSymbolicBridge:
             diagnosis.append(i)
             tuning.append(max(res[i], key=res[i].get))
 
-        diagnosis_logs.write(str(diagnosis))
-        tuning_logs.write(str(tuning))
+        diagnosis_logs.write(str(diagnosis) + "\n")
+        tuning_logs.write(str(tuning) + "\n")
         return tuning, diagnosis
