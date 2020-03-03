@@ -2,6 +2,8 @@
 
 action(reg_l2, overfitting) :- eve.
 action(decr_lr, inc_loss) :- eve.
+action(decr_lr, high_lr) :- eve.
+action(inc_lr, low_lr) :- eve.
 
 t(0.4)::action(inc_dropout, overfitting).
 t(0.6)::action(data_augmentation, overfitting).

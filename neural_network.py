@@ -16,6 +16,7 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
 from datasets.cifar_dataset import cifar_data
 from LOLR import Lolr
+from search_space import search_space
 
 
 class neural_network:
@@ -134,7 +135,7 @@ class neural_network:
     def lolr_checking(self, mdl, space, lr, batch, trd, trl, ted, tel):
         for hp in space:
             if hp.name == 'learning_rate':
-                min_lr = hp.low
+                min_lr = 10**-3
                 max_lr = hp.high
 
         lolr = Lolr(min_lr, max_lr, steps_per_epoch=np.ceil(len(trd) / batch))
@@ -179,11 +180,12 @@ class neural_network:
         # plt.plot(lrs, losses)
 
         # compiling and training
-        #adam = Adam(lr=params['learning_rate'])
+        # adam = Adam(lr=params['learning_rate'])
         _opt = params['optimizer'] + "(learning_rate=" + str(params['learning_rate']) + ")"
         opt = eval(_opt)
         model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-        es = EarlyStopping(monitor='val_loss', patience=15, verbose=1, mode='min')
+        es1 = EarlyStopping(monitor='val_loss', min_delta=0.005 , patience=15, verbose=1, mode='min')
+        es2 = EarlyStopping(monitor='val_accuracy', min_delta=0.005, patience=15, verbose=1, mode='max')
 
         if da:
             datagen = ImageDataGenerator(
@@ -196,13 +198,13 @@ class neural_network:
 
             history = model.fit_generator(
                 datagen.flow(self.train_data, self.train_labels, batch_size=params['batch_size']), epochs=self.epochs,
-                verbose=1, validation_data=(self.test_data, self.test_labels), callbacks=[tensorboard, es]).history
+                verbose=1, validation_data=(self.test_data, self.test_labels), callbacks=[tensorboard, es1,es2]).history
         else:
 
             history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                                 verbose=1,
                                 validation_data=(self.test_data, self.test_labels),
-                                callbacks=[tensorboard, es]).history
+                                callbacks=[tensorboard, es1,es2]).history
 
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights-{}.h5".format(time())
@@ -212,14 +214,16 @@ class neural_network:
 
 if __name__ == '__main__':
     X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
+    ss = search_space()
+    space = ss.search_sp()
 
-    default_params = {'unit_c1': 37, 'dr1_2': 0.08075225090559862, 'unit_c2': 97, 'unit_d': 436,
-                      'dr_f': 0.18413154855938407, 'learning_rate': 0.03504090438475931, 'batch_size': 256,
-                      'reg': 0.028173467805020478, 'new_fc': 257}
+    default_params = {'unit_c1': 64, 'dr1_2': 0.27951679858917616, 'unit_c2': 127, 'unit_d': 511,
+                      'dr_f': 0.27222430948635296, 'learning_rate': 1.2512654825509917e-07, 'batch_size': 256,
+                      'optimizer': 'Adamax', 'new_fc': 202}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model = n.training(default_params, False, [True, 8], None)
+    score, history, model = n.training(default_params, False, [True, 4], None, space)
     print(model.summary())
     f2 = open("algorithm_logs/history.txt", "w")
     f2.write(str(history))

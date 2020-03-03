@@ -41,6 +41,11 @@ class tuning_rules_symbolic:
             if hp.name == 'learning_rate':
                 hp.high = params['learning_rate'] + (params['learning_rate'] / 2)
 
+    def inc_lr(self, params):
+        for hp in self.space:
+            if hp.name == 'learning_rate':
+                hp.high = params['learning_rate'] + hp.high
+
     def inc_neurons(self, params):
         for hp in self.space:
             if 'unit_c1' in hp.name:
@@ -54,6 +59,7 @@ class tuning_rules_symbolic:
         for hp in self.space:
             if hp.name == 'batch_size':
                 hp.low = params['batch_size'] - 1
+
 
     def repair(self, sym_tuning, model, params):
         '''

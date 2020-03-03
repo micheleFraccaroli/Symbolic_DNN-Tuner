@@ -20,6 +20,9 @@ class LfiIntegration:
         self.underfitting = Term('underfitting')
         self.inc_loss = Term('inc_loss')
         self.floating_loss = Term('floating_loss')
+        self.high_lr = Term('high_lr')
+        self.low_lr = Term('low_lr')
+        self.inc_lr = Term('inc_lr')
         self.action1 = Term('action', self.reg_l2, self.overfitting)
         self.action2 = Term('action', self.inc_dropout, self.overfitting)
         self.action3 = Term('action', self.decr_lr, self.underfitting)
@@ -28,6 +31,8 @@ class LfiIntegration:
         self.action6 = Term('action', self.inc_batch_size, self.floating_loss)
         self.action7 = Term('action', self.decr_lr, self.floating_loss)
         self.action8 = Term('action', self.data_augmentation, self.overfitting)
+        self.action9 = Term('action', self.inc_lr, self.low_lr)
+        self.action10 = Term('action', self.decr_lr, self.high_lr)
 
     def get_str(self, s, before, after):
         return (i.split(after)[0] for i in s.split(before)[1:] if after in i)

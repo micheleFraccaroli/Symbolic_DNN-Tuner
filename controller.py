@@ -10,6 +10,7 @@ from neural_sym_bridge import NeuralSymbolicBridge
 from lfi_integration import LfiIntegration
 from storing_experience import StoringExperience
 from improvement_checker import ImprovementChecker
+from integral import integrals
 
 
 class controller:
@@ -79,8 +80,6 @@ class controller:
         print(colors.CYAN, "| START SYMBOLIC DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
         diagnosis_logs = open("algorithm_logs/diagnosis_symbolic_logs.txt", "a")
         tuning_logs = open("algorithm_logs/tuning_symbolic_logs.txt", "a")
-        # self.d.reset_diagnosis()
-        # self.issues = self.d.diagnosis(self.history, self.score, diagnosis_logs, "controller")
 
         print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
@@ -92,11 +91,13 @@ class controller:
             sy_model = lfi_problem.get_model()
             self.nsb.edit_probs(sy_model)
 
+        int_loss, int_slope = integrals(self.history['val_loss'])
+
         self.symbolic_tuning, self.symbolic_diagnosis = self.nsb.symbolic_reasoning(
             [self.history['loss'], self.smooth(self.history['loss']),
              self.smooth(self.history['accuracy']),
              self.history['accuracy'],
-             self.history['val_loss'], self.history['val_accuracy']],
+             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope],
             diagnosis_logs, tuning_logs)
 
         diagnosis_logs.close()
