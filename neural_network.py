@@ -30,7 +30,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 5
         self.last_dense = 0
 
     def build_network(self, params, new):
@@ -71,6 +71,7 @@ class neural_network:
         return model
 
     def insert_layer(self, model, layer_regex, params, dense, num=0, position='after'):
+        check = True
         # Auxiliary dictionary to describe the network graph
         K.clear_session()
         network_dict = {'input_layers_of': {}, 'new_output_tensor_of': {}}
@@ -80,12 +81,26 @@ class neural_network:
                 if 'conv' in layer.name:
                     layer.kernel_regularizer = reg.l2(params['reg'])
             for node in layer.outbound_nodes:
-                layer_name = node.outbound_layer.name
-                if layer_name not in network_dict['input_layers_of']:
-                    network_dict['input_layers_of'].update(
-                        {layer_name: [layer.name]})
+                if len(layer.outbound_nodes) > 1:
+                    if 'dense' in layer.name and not dense and check:
+                        check = False
+                        pass
+                    else:
+                        layer_name = node.outbound_layer.name
+                        if layer_name not in network_dict['input_layers_of']:
+                            network_dict['input_layers_of'].update(
+                                {layer_name: [layer.name]})
+                        else:
+                            network_dict['input_layers_of'][layer_name].append(layer.name)
+                        check = True
+                        break
                 else:
-                    network_dict['input_layers_of'][layer_name].append(layer.name)
+                    layer_name = node.outbound_layer.name
+                    if layer_name not in network_dict['input_layers_of']:
+                        network_dict['input_layers_of'].update(
+                            {layer_name: [layer.name]})
+                    else:
+                        network_dict['input_layers_of'][layer_name].append(layer.name)
 
         # Set the output tensor of the input layer
         network_dict['new_output_tensor_of'].update(
@@ -93,8 +108,12 @@ class neural_network:
 
         # Iterate over all layers after the input
         for layer in model.layers[1:]:
+            if layer.name == 'final':
+                name = "dense_1"
+            else:
+                name = layer.name
             layer_input = [network_dict['new_output_tensor_of'][layer_aux]
-                           for layer_aux in network_dict['input_layers_of'][layer.name]]
+                           for layer_aux in network_dict['input_layers_of'][name]]
             if len(layer_input) == 1:
                 layer_input = layer_input[0]
 
@@ -122,7 +141,9 @@ class neural_network:
                 if position == 'before':
                     x = layer(x)
             else:
-                if layer.output.shape[1] == 10 and re.match(layer_regex, layer.name):
+                if layer.output.shape[1] == 10 and re.match(layer_regex, layer.name) and not 'Softmax' in \
+                                                                                             layer.output.op.inputs._inputs[
+                                                                                                 0].name:
                     x = Dense(layer.output.shape[1], name='final')(x)
                 else:
                     x = layer(layer_input)
@@ -135,7 +156,7 @@ class neural_network:
     def lolr_checking(self, mdl, space, lr, batch, trd, trl, ted, tel):
         for hp in space:
             if hp.name == 'learning_rate':
-                min_lr = 10**-3
+                min_lr = 10 ** -3
                 max_lr = hp.high
 
         lolr = Lolr(min_lr, max_lr, steps_per_epoch=np.ceil(len(trd) / batch))
@@ -184,7 +205,7 @@ class neural_network:
         _opt = params['optimizer'] + "(learning_rate=" + str(params['learning_rate']) + ")"
         opt = eval(_opt)
         model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
-        es1 = EarlyStopping(monitor='val_loss', min_delta=0.005 , patience=15, verbose=1, mode='min')
+        es1 = EarlyStopping(monitor='val_loss', min_delta=0.005, patience=15, verbose=1, mode='min')
         es2 = EarlyStopping(monitor='val_accuracy', min_delta=0.005, patience=15, verbose=1, mode='max')
 
         if da:
@@ -198,13 +219,14 @@ class neural_network:
 
             history = model.fit_generator(
                 datagen.flow(self.train_data, self.train_labels, batch_size=params['batch_size']), epochs=self.epochs,
-                verbose=1, validation_data=(self.test_data, self.test_labels), callbacks=[tensorboard, es1,es2]).history
+                verbose=1, validation_data=(self.test_data, self.test_labels),
+                callbacks=[tensorboard, es1, es2]).history
         else:
 
             history = model.fit(self.train_data, self.train_labels, epochs=self.epochs, batch_size=params['batch_size'],
                                 verbose=1,
                                 validation_data=(self.test_data, self.test_labels),
-                                callbacks=[tensorboard, es1,es2]).history
+                                callbacks=[tensorboard, es1, es2]).history
 
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights-{}.h5".format(time())
@@ -217,13 +239,13 @@ if __name__ == '__main__':
     ss = search_space()
     space = ss.search_sp()
 
-    default_params = {'unit_c1': 64, 'dr1_2': 0.27951679858917616, 'unit_c2': 127, 'unit_d': 511,
-                      'dr_f': 0.27222430948635296, 'learning_rate': 1.2512654825509917e-07, 'batch_size': 256,
-                      'optimizer': 'Adamax', 'new_fc': 202}
+    default_params = {'unit_c1': 57, 'dr1_2': 0.1256695669329692, 'unit_c2': 124, 'unit_d': 315,
+                      'dr_f': 0.045717734023783346, 'learning_rate': 0.08359864897019328, 'batch_size': 252,
+                      'optimizer': 'RMSProp', 'reg': 0.05497168445820486, 'new_fc': 497}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model = n.training(default_params, False, [True, 4], None, space)
+    score, history, model = n.training(default_params, True, [True, 4], None, space)
     print(model.summary())
     f2 = open("algorithm_logs/history.txt", "w")
     f2.write(str(history))

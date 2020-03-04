@@ -34,7 +34,9 @@ class search_space:
                 else:
                     np = Integer(abs(params[p] - self.epsilon_i), params[p] + self.epsilon_i, name=p)
                 new_Hp.append(np)
-        return self.search_space + new_Hp
+
+        self.search_space = self.search_space + new_Hp
+        return self.search_space
 
 
 if __name__ == '__main__':

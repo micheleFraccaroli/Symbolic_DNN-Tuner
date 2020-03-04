@@ -8,7 +8,7 @@ from problog.tasks import sample
 class NeuralSymbolicBridge:
     def __init__(self):
         self.initial_facts = ['l', 'sl', 'a', 'sa', 'vl', 'va', 'int_loss', 'int_slope']
-        self.problems = ['overfitting', 'underfitting','inc_loss','floating_loss']
+        self.problems = ['overfitting', 'underfitting', 'inc_loss', 'floating_loss', 'high_lr', 'low_lrˇ']
 
     def build_symbolic_model(self, facts):
         """
@@ -30,7 +30,7 @@ class NeuralSymbolicBridge:
         for fa, i in zip(facts, self.initial_facts):
             sym_facts = sym_facts + i + "(" + str(fa) + ").\n"
 
-        output = open("symbolic/final.pl","w")
+        output = open("symbolic/final.pl", "w")
         output.write(sym_facts + "\n" + sym_prob + "\n" + sym_model)
         output.close()
 
@@ -44,20 +44,20 @@ class NeuralSymbolicBridge:
             for p in self.problems:
                 if p in t:
                     if "eve" in t:
-                        res.append(t[:len(t)-1] + ", problem(" + p + ").")
+                        res.append(t[:len(t) - 1] + ", problem(" + p + ").")
                     else:
                         res.append(t[:len(t) - 1] + ":- problem(" + p + ").")
         return "\n".join(res)
 
     def edit_probs(self, sym_model):
-        prev_model = open("symbolic/sym_prob.pl","r").read()
+        prev_model = open("symbolic/sym_prob.pl", "r").read()
 
         x = re.findall("[0-9][.].*[:][:]['a']", sym_model)
         for i in range(len(x)):
             xx = re.findall("[0-9][.].*[:][:]['a']", prev_model)
             new = re.sub(xx[i], x[i], sym_model)
         new = self.complete_probs(new)
-        f = open("symbolic/sym_prob.pl","w")
+        f = open("symbolic/sym_prob.pl", "w")
         f.write(new)
         f.close()
 

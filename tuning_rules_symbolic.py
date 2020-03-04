@@ -2,6 +2,7 @@ import random as ra
 import sys
 from time import time
 
+
 class tuning_rules_symbolic:
     def __init__(self, params, ss, controller):
         self.space = params
@@ -24,7 +25,7 @@ class tuning_rules_symbolic:
     def new_fc_layer(self):
         self.count_new_fc += 1
         self.controller.add_fc_layer(True, self.count_new_fc)
-        new_p = {'new_fc' : 512}
+        new_p = {'new_fc': 512}
         self.space = self.ss.add_params(new_p)
 
     def data_augmentation(self):
@@ -34,7 +35,7 @@ class tuning_rules_symbolic:
         self.controller.set_data_augmentation(False)
         for hp in self.space:
             if 'dr' in hp.name:
-                hp.low = params[hp.name] - params[hp.name]/100
+                hp.low = params[hp.name] - params[hp.name] / 100
 
     def decr_lr(self, params):
         for hp in self.space:
@@ -59,7 +60,6 @@ class tuning_rules_symbolic:
         for hp in self.space:
             if hp.name == 'batch_size':
                 hp.low = params['batch_size'] - 1
-
 
     def repair(self, sym_tuning, model, params):
         '''
