@@ -87,7 +87,7 @@ class controller:
         self.db.insert_ranking(self.score[1], self.score[0])
 
         if improv is not None:
-            _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning)
+            _, lfi_problem = self.lfi.learning(improv, self.symbolic_tuning, self.symbolic_diagnosis)
             sy_model = lfi_problem.get_model()
             self.nsb.edit_probs(sy_model)
 
