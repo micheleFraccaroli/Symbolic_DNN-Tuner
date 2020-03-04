@@ -30,7 +30,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 5
+        self.epochs = 200
         self.last_dense = 0
 
     def build_network(self, params, new):
