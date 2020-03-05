@@ -24,8 +24,8 @@ gap_tr_te_acc :- a(A), va(VA), last(A,LTA), last(VA,ScoreA),
 gap_tr_te_loss :- l(L), vl(VL), last(L,LTL), last(VL,ScoreL),
                 Res is LTL - ScoreL, abs2(Res,Res1), Res1 > 0.2.
 low_acc :- a(A), last(A,LTA),
-                Res is LTA - 1.0, abs2(Res,Res1), Res1 > 0.37.
-high_loss :- l(L), last(L,LTL), isclose(LTL,0,1.7).
+                Res is LTA - 1.0, abs2(Res,Res1), Res1 > 0.60.
+high_loss :- l(L), last(L,LTL), \+isclose(LTL,0,1.7).
 growing_loss_trend :- l(L),add_to_UpList(L,Usl), length(L,Length_u), G is (Usl*100)/Length_u, G > 50.
 up_down_acc :- a(A),add_to_UpList(A,Usa), add_to_DownList(A,Dsa), isclose(Usa,Dsa,150), Usa > 0, Dsa > 0.
 up_down_loss :- l(L),add_to_UpList(L,Usl), add_to_DownList(L,Dsl), isclose(Usl,Dsl,150), Usl > 0, Dsl > 0.
