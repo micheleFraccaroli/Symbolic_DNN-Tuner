@@ -17,6 +17,7 @@ default_params = {
     'dr_f': hp.uniform('dr_f', 0.03, 0.5),
     'learning_rate': hp.uniform('learning_rate', 10 ** -5, 10 ** -1),
     'batch_size': hp.uniform('batch_size', 16, 128),
+    'optimizer':hp.choice('optimizer', ['Adam', 'Adamax', 'RMSProp'])
 }
 start_time = time.time()
 
@@ -28,7 +29,7 @@ def objective(params):
     f = open("hyperparameters_hyperopt.txt", "a")
     f.write(str(params) + "\n")
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
-    score, history, model = n.training(params, False, None)
+    score, history, model = n.training(params, False, None, None, [])
     f.close()
     K.clear_session()
     return {'loss': -score[1], 'status': STATUS_OK}

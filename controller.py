@@ -34,6 +34,7 @@ class controller:
         self.weight = 0.6
         self.new = None
         self.new_fc = None
+        self.new_conv = None
         self.da = None
         self.model = None
         self.params = None
@@ -44,6 +45,9 @@ class controller:
 
     def add_fc_layer(self, new_fc, c):
         self.new_fc = [new_fc,c]
+
+    def add_conv_section(self, new_conv, c):
+        self.new_conv = [new_conv,c]
 
     def set_data_augmentation(self, da):
         self.da = da
@@ -62,13 +66,13 @@ class controller:
         """
         Training and tasting the neural network
         training(Train, Labels_train, Test, Label_test)
-        :return: model and training historyself.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
+        :return: model and training history self.nn = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
         """
         self.params = params
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.da, self.space)
+        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.da, self.space)
 
         return -self.score[1]
 

@@ -15,9 +15,10 @@ class search_space:
             Integer(64, 128, name='unit_c2'),
             Integer(256, 512, name='unit_d'),
             Real(0.03, 0.5, name='dr_f'),
-            Real(10 ** -5, 10 ** -1, name='learning_rate'),
+            Real(1e-4, 1e-3, name='learning_rate'),
             Integer(16, 256, name='batch_size'),
-            Categorical(['Adam', 'Adamax', 'RMSProp'], name='optimizer')
+            Categorical(['Adam', 'Adamax', 'RMSProp'], name='optimizer'),
+            Categorical(['relu', 'elu', 'selu'], name='activation')
         ]
 
         return self.search_space

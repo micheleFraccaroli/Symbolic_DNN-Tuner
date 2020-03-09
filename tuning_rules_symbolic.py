@@ -12,6 +12,7 @@ class tuning_rules_symbolic:
         self.count_da = 0
         self.count_br = 0
         self.count_new_fc = 0
+        self.count_new_cv = 0
 
     def reg_l2(self):
         self.count_br += 1
@@ -27,6 +28,10 @@ class tuning_rules_symbolic:
         self.controller.add_fc_layer(True, self.count_new_fc)
         new_p = {'new_fc': 512}
         self.space = self.ss.add_params(new_p)
+
+    def new_conv_layer(self):
+        self.count_new_cv += 1
+        self.controller.add_conv_section(True,self.count_new_cv)
 
     def data_augmentation(self):
         self.controller.set_data_augmentation(True)
@@ -68,7 +73,7 @@ class tuning_rules_symbolic:
         '''
         del self.controller.model
         for d in sym_tuning:
-            if d != 'reg_l2' and d != 'data_augmentation' and d != 'new_fc_layer':
+            if d != 'reg_l2' and d != 'data_augmentation' and d != 'new_fc_layer' and d != 'new_conv_layer':
                 d = "self." + d + "(params)"
             else:
                 d = "self." + d + "()"
