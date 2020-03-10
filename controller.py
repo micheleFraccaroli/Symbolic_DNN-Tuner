@@ -39,8 +39,8 @@ class controller:
         self.model = None
         self.params = None
         self.iter = 0
-        self.lacc = 0.3
-        self.hloss = 1.7
+        self.lacc = 0.2
+        self.hloss = 1.3
         self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
 
