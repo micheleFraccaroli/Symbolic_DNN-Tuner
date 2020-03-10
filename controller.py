@@ -38,16 +38,20 @@ class controller:
         self.da = None
         self.model = None
         self.params = None
+        self.iter = 0
+        self.lacc = 0.3
+        self.hloss = 1.7
+        self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
 
     def set_case(self, new):
         self.new = new
 
     def add_fc_layer(self, new_fc, c):
-        self.new_fc = [new_fc,c]
+        self.new_fc = [new_fc, c]
 
     def add_conv_section(self, new_conv, c):
-        self.new_conv = [new_conv,c]
+        self.new_conv = [new_conv, c]
 
     def set_data_augmentation(self, da):
         self.da = da
@@ -72,7 +76,9 @@ class controller:
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.da, self.space)
+        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.da,
+                                                                self.space)
+        self.iter += 1
 
         return -self.score[1]
 
@@ -97,11 +103,16 @@ class controller:
 
         int_loss, int_slope = integrals(self.history['val_loss'])
 
+        for level in self.levels:
+            if self.iter == level:
+                self.lacc = self.lacc/2 + 0.05
+                self.hloss = self.hloss/2 + 0.15
+
         self.symbolic_tuning, self.symbolic_diagnosis = self.nsb.symbolic_reasoning(
             [self.history['loss'], self.smooth(self.history['loss']),
              self.smooth(self.history['accuracy']),
              self.history['accuracy'],
-             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope],
+             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss],
             diagnosis_logs, tuning_logs)
 
         diagnosis_logs.close()

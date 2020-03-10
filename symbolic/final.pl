@@ -1,11 +1,13 @@
-l([3.4257152309417727, 3.084995059967041, 2.959659553050995, 2.81320246219635, 2.680634226322174, 2.66051975107193, 2.664046021938324, 2.546303625583649, 2.439545150279999, 2.4457686955928803, 2.461737428188324, 2.5026182246208193, 2.335919292449951, 2.435777594089508, 2.3947580318450927, 2.3431359770298004, 2.2850220355987547]).
-sl([3.4257152309417727, 3.2894271625518803, 3.157520118751526, 3.0197930561294557, 2.884129524206543, 2.7946856149526975, 2.742429777746948, 2.663979316881629, 2.5742056502409767, 2.522830868381738, 2.4983934923043725, 2.500083385230951, 2.434417748118551, 2.434961686506934, 2.4188802246421974, 2.3885825255972386, 2.3471583295978453]).
-a([0.11500000208616257, 0.1413999989628792, 0.16003999680280687, 0.17802399736642838, 0.20361439789533614, 0.2093686366391182, 0.21802118446302415, 0.23441271201295855, 0.2454476250143242, 0.25166857796498493, 0.2562011513566277, 0.25892069539161333, 0.2725524222894419, 0.2751314590003436, 0.2794788807407823, 0.2872873264417533, 0.28957240091952585]).
-sa([0.115, 0.181, 0.188, 0.205, 0.242, 0.218, 0.231, 0.259, 0.262, 0.261, 0.263, 0.263, 0.293, 0.279, 0.286, 0.299, 0.293]).
-vl([2.27810933192571, 2.2569942673047385, 2.2957216284491797, 2.4296573599179587, 2.5598066051801047, 2.803497632344564, 2.989912688732147, 3.087525169054667, 3.1626018484433494, 3.209883689880371, 3.277665456136068, 3.282602588335673, 3.2577742536862693, 3.075914003632285, 3.057855010032654, 2.8848150769869485, 2.6568374633789062]).
-va([0.105, 0.135, 0.15833333, 0.12666667, 0.11833333, 0.096666664, 0.093333334, 0.108333334, 0.108333334, 0.1, 0.105, 0.11, 0.11666667, 0.12166667, 0.13, 0.15666667, 0.18833333]).
-int_loss(46.099700675769284).
-int_slope(128.0).
+l([3.4204895050525663, 3.2565735938549043, 3.152839810371399, 3.014260437965393, 2.9378944685459136]).
+sl([3.4204895050525663, 3.3549231405735016, 3.274089808492661, 3.1701580602817536, 3.077252623587418]).
+a([0.11999999731779099, 0.12640000134706497, 0.14624000042676927, 0.15934400230646134, 0.17040640395879747]).
+sa([0.12, 0.136, 0.176, 0.179, 0.187]).
+vl([2.9003032624721525, 3.02466504573822, 3.047248524427414, 3.028617539405823, 3.0150049149990084]).
+va([0.13833334, 0.15666667, 0.17333333, 0.18166667, 0.19833334]).
+int_loss(12.058185198307037).
+int_slope(11.830616354942322).
+lacc(0.125).
+hloss(0.475).
 
 0.99::eve.
 action(reg_l2,overfitting) :- eve, problem(overfitting).
@@ -14,11 +16,11 @@ action(decr_lr,high_lr) :- eve, problem(high_lr).
 0.0::action(inc_dropout,overfitting):- problem(overfitting).
 0.0::action(data_augmentation,overfitting):- problem(overfitting).
 0.3::action(decr_lr,underfitting):- problem(underfitting).
-0.1::action(inc_neurons,underfitting):- problem(underfitting).
-0.3::action(new_fc_layer,underfitting):- problem(underfitting).
-0.6::action(new_conv_layer,underfitting):- problem(underfitting).
+0.0::action(inc_neurons,underfitting):- problem(underfitting).
+0.0::action(new_fc_layer,underfitting):- problem(underfitting).
+0.4::action(new_conv_layer,underfitting):- problem(underfitting).
 0.0::action(inc_batch_size,floating_loss):- problem(floating_loss).
-0.6::action(decr_lr,floating_loss):- problem(floating_loss).
+1.0::action(decr_lr,floating_loss):- problem(floating_loss).
 
 % DIAGNOSIS SECTION ----------------------------------------------------------------------------------------------------
 :- use_module(library(lists)).
@@ -44,9 +46,9 @@ gap_tr_te_acc :- a(A), va(VA), last(A,LTA), last(VA,ScoreA),
                 Res is LTA - ScoreA, abs2(Res,Res1), Res1 > 0.2.
 gap_tr_te_loss :- l(L), vl(VL), last(L,LTL), last(VL,ScoreL),
                 Res is LTL - ScoreL, abs2(Res,Res1), Res1 > 0.2.
-low_acc :- a(A), last(A,LTA),
-                Res is LTA - 1.0, abs2(Res,Res1), Res1 > 0.30.
-high_loss :- l(L), last(L,LTL), \+isclose(LTL,0,1.7).
+low_acc :- a(A), lacc(Tha), last(A,LTA),
+                Res is LTA - 1.0, abs2(Res,Res1), Res1 > Tha.
+high_loss :- l(L), hloss(Thl), last(L,LTL), \+isclose(LTL,0,Thl).
 growing_loss_trend :- l(L),add_to_UpList(L,Usl), length(L,Length_u), G is (Usl*100)/Length_u, G > 50.
 up_down_acc :- a(A),add_to_UpList(A,Usa), add_to_DownList(A,Dsa), isclose(Usa,Dsa,150), Usa > 0, Dsa > 0.
 up_down_loss :- l(L),add_to_UpList(L,Usl), add_to_DownList(L,Dsl), isclose(Usl,Dsl,150), Usl > 0, Dsl > 0.

@@ -117,7 +117,7 @@ class neural_network:
         for i in d.keys():
             k.append(i)
         __d = d.copy()
-        for i,j in zip(d,k):
+        for i, j in zip(d, k):
             if len(d[i]) > 1:
                 k.insert(k.index(i), d[i][1])
                 __d[d[i][1]] = [d[i][0]]
@@ -247,7 +247,7 @@ class neural_network:
         model.compile(loss='categorical_crossentropy', optimizer=opt, metrics=['accuracy'])
         es1 = EarlyStopping(monitor='val_loss', min_delta=0.005, patience=15, verbose=1, mode='min')
         es2 = EarlyStopping(monitor='val_accuracy', min_delta=0.005, patience=15, verbose=1, mode='max')
-        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2,   patience=5, min_lr=1e-4)
+        reduce_lr = ReduceLROnPlateau(monitor='val_loss', factor=0.2, patience=5, verbose=1, min_lr=1e-4)
 
         if da:
             datagen = ImageDataGenerator(
@@ -290,7 +290,7 @@ if __name__ == '__main__':
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
 
-    score, history, model = n.training(default_params, True, [True,1], None, None, space)
+    score, history, model = n.training(default_params, True, [True, 1], None, None, space)
 
     f2 = open("algorithm_logs/history.txt", "w")
     f2.write(str(history))

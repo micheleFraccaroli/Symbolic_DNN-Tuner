@@ -2,8 +2,8 @@
 action(reg_l2,overfitting) :- eve, problem(overfitting).
 action(decr_lr,inc_loss) :- eve, problem(inc_loss).
 action(decr_lr,high_lr) :- eve, problem(high_lr).
-0.0::action(inc_dropout,overfitting):- problem(overfitting).
-0.0::action(data_augmentation,overfitting):- problem(overfitting).
+0.4::action(inc_dropout,overfitting):- problem(overfitting).
+0.6::action(data_augmentation,overfitting):- problem(overfitting).
 0.3::action(decr_lr,underfitting):- problem(underfitting).
 0.5::action(inc_neurons,underfitting):- problem(underfitting).
 0.45::action(new_fc_layer,underfitting):- problem(underfitting).
