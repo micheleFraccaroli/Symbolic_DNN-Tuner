@@ -1,26 +1,26 @@
-l([3.4204895050525663, 3.2565735938549043, 3.152839810371399, 3.014260437965393, 2.9378944685459136]).
-sl([3.4204895050525663, 3.3549231405735016, 3.274089808492661, 3.1701580602817536, 3.077252623587418]).
-a([0.11999999731779099, 0.12640000134706497, 0.14624000042676927, 0.15934400230646134, 0.17040640395879747]).
-sa([0.12, 0.136, 0.176, 0.179, 0.187]).
-vl([2.9003032624721525, 3.02466504573822, 3.047248524427414, 3.028617539405823, 3.0150049149990084]).
-va([0.13833334, 0.15666667, 0.17333333, 0.18166667, 0.19833334]).
-int_loss(12.058185198307037).
-int_slope(11.830616354942322).
-lacc(0.125).
-hloss(0.475).
+l([3.7300542759895325, 2.746882150173187, 2.39067347407341, 2.160768939256668, 2.223045926094055]).
+sl([3.7300542759895325, 3.3367854256629945, 2.9583406450271608, 2.6393119627189634, 2.472805548069]).
+a([0.1979999989271164, 0.21759999692440035, 0.2585599952936173, 0.28953599536418917, 0.30732159378528595]).
+sa([0.198, 0.247, 0.32, 0.336, 0.334]).
+vl([2.37505050500234, 2.3868799209594727, 2.4278790950775146, 2.860420513153076, 2.5955814520517984]).
+va([0.11, 0.117, 0.152, 0.142, 0.201]).
+int_loss(10.160495507717133).
+int_slope(9.941263914108276).
+lacc(0.3).
+hloss(1.7).
 
 0.99::eve.
 action(reg_l2,overfitting) :- eve, problem(overfitting).
 action(decr_lr,inc_loss) :- eve, problem(inc_loss).
 action(decr_lr,high_lr) :- eve, problem(high_lr).
-0.0::action(inc_dropout,overfitting):- problem(overfitting).
+0.4::action(inc_dropout,overfitting):- problem(overfitting).
 0.0::action(data_augmentation,overfitting):- problem(overfitting).
 0.3::action(decr_lr,underfitting):- problem(underfitting).
 0.0::action(inc_neurons,underfitting):- problem(underfitting).
-0.0::action(new_fc_layer,underfitting):- problem(underfitting).
-0.4::action(new_conv_layer,underfitting):- problem(underfitting).
-0.0::action(inc_batch_size,floating_loss):- problem(floating_loss).
-1.0::action(decr_lr,floating_loss):- problem(floating_loss).
+0.45::action(new_fc_layer,underfitting):- problem(underfitting).
+0.45::action(new_conv_layer,underfitting):- problem(underfitting).
+0.85::action(inc_batch_size,floating_loss):- problem(floating_loss).
+0.15::action(decr_lr,floating_loss):- problem(floating_loss).
 
 % DIAGNOSIS SECTION ----------------------------------------------------------------------------------------------------
 :- use_module(library(lists)).
@@ -46,9 +46,9 @@ gap_tr_te_acc :- a(A), va(VA), last(A,LTA), last(VA,ScoreA),
                 Res is LTA - ScoreA, abs2(Res,Res1), Res1 > 0.2.
 gap_tr_te_loss :- l(L), vl(VL), last(L,LTL), last(VL,ScoreL),
                 Res is LTL - ScoreL, abs2(Res,Res1), Res1 > 0.2.
-low_acc :- a(A), lacc(Tha), last(A,LTA),
+low_acc :- va(A), lacc(Tha), last(A,LTA),
                 Res is LTA - 1.0, abs2(Res,Res1), Res1 > Tha.
-high_loss :- l(L), hloss(Thl), last(L,LTL), \+isclose(LTL,0,Thl).
+high_loss :- vl(L), hloss(Thl), last(L,LTL), \+isclose(LTL,0,Thl).
 growing_loss_trend :- l(L),add_to_UpList(L,Usl), length(L,Length_u), G is (Usl*100)/Length_u, G > 50.
 up_down_acc :- a(A),add_to_UpList(A,Usa), add_to_DownList(A,Dsa), isclose(Usa,Dsa,150), Usa > 0, Dsa > 0.
 up_down_loss :- l(L),add_to_UpList(L,Usl), add_to_DownList(L,Dsl), isclose(Usl,Dsl,150), Usl > 0, Dsl > 0.
