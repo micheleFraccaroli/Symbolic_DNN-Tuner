@@ -50,7 +50,7 @@ class neural_network:
         x = Conv2D(params['unit_c1'], (3, 3))(x)
         x = Activation(params['activation'])(x)
         x = MaxPooling2D(pool_size=(2, 2))(x)
-        x = Dropout(params['dr1_2'])(x)
+        #x = Dropout(params['dr1_2'])(x)
 
         x = Conv2D(params['unit_c2'], (3, 3), padding='same')(x)
         x = Activation(params['activation'])(x)

@@ -17,7 +17,8 @@ search_space = [
     Real(0.03, 0.5, name='dr_f'),
     Real(10 ** -5, 10 ** -1, name='learning_rate'),
     Integer(16, 128, name='batch_size'),
-    Categorical(['Adam', 'Adamax', 'RMSProp'], name='optimizer')
+    Categorical(['Adam', 'Adamax', 'RMSProp'], name='optimizer'),
+    Categorical(['relu', 'elu', 'selu'], name='activation')
 ]
 start_time = time.time()
 
@@ -27,13 +28,12 @@ def objective(**params):
     f = open("hyperparameters_skopt.txt", "a")
     f.write(str(params) + "\n")
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
-    score, history, model = n.training(params, False, None, None, [])
+    score, history, model = n.training(params, False, None, None, None, [])
     f.close()
     K.clear_session()
     return -score[1]
 
 
-#X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 checkpoint_saver = CheckpointSaver("checkpoints/checkpoint.pkl", compress=9)
 
