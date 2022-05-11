@@ -7,8 +7,9 @@ from problog.tasks import sample
 
 class NeuralSymbolicBridge:
     def __init__(self):
-        self.initial_facts = ['l', 'sl', 'a', 'sa', 'vl', 'va', 'int_loss', 'int_slope', 'lacc', 'hloss']
-        self.problems = ['overfitting', 'underfitting', 'inc_loss', 'floating_loss', 'high_lr', 'low_lrˇ']
+        self.initial_facts = ['l', 'sl', 'a', 'sa', 'vl', 'va',
+                              'int_loss', 'int_slope', 'lacc', 'hloss', 'flops', 'flops_th', 'nparams', 'nparams_th']
+        self.problems = ['overfitting', 'underfitting', 'inc_loss', 'floating_loss', 'high_lr', 'low_lr', 'latency', 'model_size']
 
     def build_symbolic_model(self, facts):
         """

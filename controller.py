@@ -82,7 +82,7 @@ class controller:
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model, self.flops = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.rem_conv, self.da,
+        self.score, self.history, self.model, self.flops, self.nparams = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.rem_conv, self.da,
                                                                 self.space)
         self.iter += 1
 
@@ -118,7 +118,7 @@ class controller:
             [self.history['loss'], self.smooth(self.history['loss']),
              self.smooth(self.history['accuracy']),
              self.history['accuracy'],
-             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss, self.flops, self.flops_th, self.nparams_th],
+             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss, self.flops, self.flops_th, self.nparams, self.nparams_th],
             diagnosis_logs, tuning_logs)
 
         diagnosis_logs.close()

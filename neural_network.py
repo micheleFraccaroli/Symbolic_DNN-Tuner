@@ -1,5 +1,6 @@
 import re
 from time import time
+import numpy as np
 
 from tensorflow.keras import Model
 from tensorflow.keras import backend as K
@@ -238,6 +239,9 @@ class neural_network:
 
         print(model.summary())
         flops, _ = fc.analyze_model(model)
+        trainableParams = np.sum([np.prod(v.get_shape())for v in model.trainable_weights])
+        nonTrainableParams = np.sum([np.prod(v.get_shape())for v in model.non_trainable_weights])
+        nparams = trainableParams + nonTrainableParams
         try:
             model.load_weights("Weights/weights.h5")
         except:
@@ -280,7 +284,7 @@ class neural_network:
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights-{}.h5".format(time())
         model.save_weights(weights_name)
-        return score, history, model, flops  # , rta
+        return score, history, model, flops, nparams  # , rta
 
 
 if __name__ == '__main__':
