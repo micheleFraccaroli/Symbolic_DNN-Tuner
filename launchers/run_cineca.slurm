@@ -1,12 +1,10 @@
 #!/bin/bash
 
-#SBATCH --job-name=DNN-Tuner
+#SBATCH --job-name=Symbolic_DNN-Tuner
 #SBATCH --nodes=1
-#SBATCH --mem=100GB
-#SBATCH --account=IscrC_TBD
-#SBATCH --time=8:00:00
-#SBATCH --partition=gll_usr_gpuprod
-#SBATCH --gres=gpu:kepler:1
+#SBATCH --account=IscrC_ML4COVID
+#SBATCH --time=24:00:00
+#SBATCH --partition=m100_usr_prod
+#SBATCH --gres=gpu:1
 
-python3 -W ignore main.py
-
+python main.py
