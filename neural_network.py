@@ -8,12 +8,13 @@ from tensorflow.keras.callbacks import TensorBoard, EarlyStopping, ReduceLROnPla
 from tensorflow.keras.layers import (Activation, Conv2D, Dense, Flatten, MaxPooling2D, Dropout, Input,
                                      BatchNormalization)
 from tensorflow.keras.optimizers import *
-from tensorflow_core.python.keras.optimizer_v2.rmsprop import *
 from tensorflow.keras.preprocessing.image import ImageDataGenerator
 
-from datasets.cifar_dataset import cifar_data
+from dataset import cifar_data
 from LOLR import Lolr
 from search_space import search_space
+
+import flops_calculator as fc
 
 
 class neural_network:
@@ -191,21 +192,22 @@ class neural_network:
         input = model.inputs
         return Model(inputs=input, outputs=x)
 
-    # def lolr_checking(self, mdl, space, lr, batch, trd, trl, ted, tel):
-    #     for hp in space:
-    #         if hp.name == 'learning_rate':
-    #             min_lr = 10 ** -3
-    #             max_lr = hp.high
-    #
-    #     lolr = Lolr(min_lr, max_lr, steps_per_epoch=np.ceil(len(trd) / batch))
-    #
-    #     adam = Adamax(lr=min_lr)
-    #     mdl.compile(loss='categorical_crossentropy', optimizer=adam, metrics=['accuracy'])
-    #     mdl.fit(trd, trl, epochs=1, batch_size=batch, verbose=1, validation_data=(ted, tel),
-    #             callbacks=[lolr])
-    #     return lolr.losses, lolr.lrs
+    def remove_conv_layer(self, model):
+        layers_list = model.layers
+        reverse_layers_list = layers_list.reverse()
+        buffer_rev = reverse_layers_list
+        for layer in reverse_layers_list:
+            if 'conv' in layer.name:
+                del buffer_rev[reverse_layers_list.index(layer)]
+                del buffer_rev[reverse_layers_list.index(layer)-1]
+                break
+        
+        new_model_layers = buffer_rev.reverse()
+        new_model = Model(
+            inputs=new_model_layers[0].input, outputs=new_model_layers[len(new_model_layers)-1])
+        return new_model
 
-    def training(self, params, new, new_fc, new_conv, da, space):
+    def training(self, params, new, new_fc, new_conv, rem_conv, da, space):
         """
         Function for compiling and running training
         :return: training history
@@ -228,8 +230,14 @@ class neural_network:
                     self.rgl = False
                     model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1],
                                               position='before')
+            if rem_conv:
+                self.conv = False
+                self.dense = False
+                self.rgl = False
+                model = self.remove_conv_layer(model)
 
         print(model.summary())
+        flops, _ = fc.analyze_model(model)
         try:
             model.load_weights("Weights/weights.h5")
         except:
@@ -272,7 +280,7 @@ class neural_network:
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights-{}.h5".format(time())
         model.save_weights(weights_name)
-        return score, history, model  # , rta
+        return score, history, model, flops  # , rta
 
 
 if __name__ == '__main__':

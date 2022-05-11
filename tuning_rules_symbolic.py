@@ -31,7 +31,7 @@ class tuning_rules_symbolic:
 
     def new_conv_layer(self):
         self.count_new_cv += 1
-        self.controller.add_conv_section(True,self.count_new_cv)
+        self.controller.add_conv_section(True, self.count_new_cv)
 
     def data_augmentation(self):
         self.controller.set_data_augmentation(True)
@@ -60,11 +60,26 @@ class tuning_rules_symbolic:
                 hp.low = params['unit_c2'] - 1
             if 'unit_d' in hp.name:
                 hp.low = params['unit_d'] - 1
-
+    
     def inc_batch_size(self, params):
         for hp in self.space:
             if hp.name == 'batch_size':
                 hp.low = params['batch_size'] - 1
+                
+    # new action for hardware constraints
+    def dec_neurons(self, params):
+        for hp in self.space:
+            if 'unit_c1' in hp.name:
+                hp.high = params['unit_c1'] + 1
+            if 'unit_c2' in hp.name:
+                hp.high = params['unit_c2'] + 1
+            if 'unit_d' in hp.name:
+                hp.high = params['unit_d'] + 1
+
+    def remove_conv_layer(self):
+        self.controller.remove_conv_section(True)
+    
+    # ------------------------------------
 
     def repair(self, sym_tuning, model, params):
         '''

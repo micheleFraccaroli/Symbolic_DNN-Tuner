@@ -16,3 +16,8 @@ t(0.45)::action(new_conv_layer, underfitting).
 t(0.85)::action(inc_batch_size, floating_loss).
 t(0.15)::action(decr_lr, floating_loss).
 
+% rules for hardware constraints
+t(0.4)::action(dec_neurons, latency).
+t(0.5)::action(dec_layers, latency).
+t(0.4)::action(dec_neurons, model_size).
+t(0.5)::action(dec_layers, model_size).

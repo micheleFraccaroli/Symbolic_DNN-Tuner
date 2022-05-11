@@ -35,12 +35,15 @@ class controller:
         self.new = None
         self.new_fc = None
         self.new_conv = None
+        self.rem_conv = None
         self.da = None
         self.model = None
         self.params = None
         self.iter = 0
         self.lacc = 0.15
         self.hloss = 1.2
+        self.flops_th = 77479996 
+        self.nparams_th = 23851784 # inceptionV3 total params
         self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
 
@@ -52,6 +55,9 @@ class controller:
 
     def add_conv_section(self, new_conv, c):
         self.new_conv = [new_conv, c]
+        
+    def remove_conv_section(self, rem_conv, c):
+        self.rem_conv = rem_conv
 
     def set_data_augmentation(self, da):
         self.da = da
@@ -76,7 +82,7 @@ class controller:
         print(colors.OKBLUE, "|  --> START TRAINING\n", colors.ENDC)
         K.clear_session()
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
-        self.score, self.history, self.model = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.da,
+        self.score, self.history, self.model, self.flops = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.rem_conv, self.da,
                                                                 self.space)
         self.iter += 1
 
@@ -112,7 +118,7 @@ class controller:
             [self.history['loss'], self.smooth(self.history['loss']),
              self.smooth(self.history['accuracy']),
              self.history['accuracy'],
-             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss],
+             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss, self.flops, self.flops_th, self.nparams_th],
             diagnosis_logs, tuning_logs)
 
         diagnosis_logs.close()

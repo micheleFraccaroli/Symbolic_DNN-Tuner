@@ -32,6 +32,11 @@ up_down_loss :- l(L),add_to_UpList(L,Usl), add_to_DownList(L,Dsl), isclose(Usl,D
 to_low_lr :- area_sub(As), threshold_up(Th), As < Th.
 to_high_lr :- area_sub(As), threshold_down(Th), As > Th.
 
+% utils for hardware constraints
+high_flops :- flops(V), flops_th(Th), V > Th.
+high_numb_params :- nparams(V), nparams_th(Th), V > Th.
+
+
 % POSSIBLE PROBLEMS
 problem(overfitting) :- gap_tr_te_acc; gap_tr_te_loss.
 problem(underfitting) :- low_acc; high_loss.
@@ -39,6 +44,10 @@ problem(inc_loss) :- growing_loss_trend.
 problem(floating_loss) :- up_down_loss.
 problem(low_lr) :- to_low_lr.
 problem(high_lr) :- to_high_lr.
+
+% rules for hardware constraints
+problem(latency) :- high_flops.
+problem(model_size) :- high_numb_params.
 
 % QUERY ----------------------------------------------------------------------------------------------------------------
 query(action(_,_)).

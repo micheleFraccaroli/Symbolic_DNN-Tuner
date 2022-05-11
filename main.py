@@ -1,5 +1,6 @@
 import datetime
 import time
+import sys
 
 from skopt import gp_minimize
 from skopt import load
@@ -8,7 +9,7 @@ from tensorflow.keras import backend as K
 
 from colors import colors
 from controller import controller
-from datasets.cifar_dataset import cifar_data
+from dataset import cifar_data
 from search_space import search_space
 from params_checker import paramsChecker
 
