@@ -238,7 +238,7 @@ class neural_network:
                 model = self.remove_conv_layer(model)
 
         print(model.summary())
-        flops, _ = fc.analyze_model(model)
+        flops = fc.get_flops(model)
         trainableParams = np.sum([np.prod(v.get_shape())for v in model.trainable_weights])
         nonTrainableParams = np.sum([np.prod(v.get_shape())for v in model.non_trainable_weights])
         nparams = trainableParams + nonTrainableParams
