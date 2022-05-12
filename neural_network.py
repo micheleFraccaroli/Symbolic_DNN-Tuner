@@ -29,7 +29,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 20
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
@@ -150,7 +150,7 @@ class neural_network:
                     pass
                 else:
                     raise ValueError('position must be: before, after or replace')
-                if not 'Softmax' in layer.output.op.inputs._inputs[0].name:
+                if not 'Softmax' in layer.output.name or not 'softm' in layer.output.name:
                     if self.rgl:
                         x = BatchNormalization()(x)
                     elif self.dense and self.counter_fc < self.tot_fc:
@@ -177,8 +177,7 @@ class neural_network:
                     x = layer(x)
             else:
                 if layer.output.shape[1] == 10 and re.match(layer_regex, layer.name) and not 'Softmax' in \
-                                                                                             layer.output.op.inputs._inputs[
-                                                                                                 0].name:
+                                                                                             layer.output.name:
                     x = Dense(layer.output.shape[1], name='final')(x)
                 else:
                     if self.conv and 'dense' in layer.name and layer.output.shape[1] == 10:
