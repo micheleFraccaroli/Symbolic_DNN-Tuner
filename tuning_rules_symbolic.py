@@ -76,7 +76,7 @@ class tuning_rules_symbolic:
             if 'unit_d' in hp.name:
                 hp.high = params['unit_d'] + 1
 
-    def remove_conv_layer(self):
+    def dec_layers(self):
         self.controller.remove_conv_section(True)
     
     # ------------------------------------
@@ -88,7 +88,7 @@ class tuning_rules_symbolic:
         '''
         del self.controller.model
         for d in sym_tuning:
-            if d != 'reg_l2' and d != 'data_augmentation' and d != 'new_fc_layer' and d != 'new_conv_layer':
+            if d != 'reg_l2' and d != 'data_augmentation' and d != 'new_fc_layer' and d != 'new_conv_layer' and d != 'dec_layers':
                 d = "self." + d + "(params)"
             else:
                 d = "self." + d + "()"

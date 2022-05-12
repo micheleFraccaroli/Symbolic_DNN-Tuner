@@ -18,7 +18,7 @@ class search_space:
             Real(1e-4, 1e-3, name='learning_rate'),
             Integer(16, 256, name='batch_size'),
             Categorical(['Adam', 'Adamax', 'Adagrad', 'Adadelta'], name='optimizer'),
-            Categorical(['relu', 'elu', 'selu'], name='activation')
+            Categorical(['relu', 'elu', 'selu', 'swish'], name='activation')
         ]
 
         return self.search_space

@@ -56,7 +56,7 @@ class controller:
     def add_conv_section(self, new_conv, c):
         self.new_conv = [new_conv, c]
         
-    def remove_conv_section(self, rem_conv, c):
+    def remove_conv_section(self, rem_conv):
         self.rem_conv = rem_conv
 
     def set_data_augmentation(self, da):

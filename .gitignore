@@ -8,3 +8,4 @@ Weights
 Model
 database/*
 .DS_Store
+.idea

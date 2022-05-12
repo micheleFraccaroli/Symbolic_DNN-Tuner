@@ -9,7 +9,7 @@ from tensorflow.keras import backend as K
 
 from colors import colors
 from controller import controller
-from dataset import cifar_data
+from dataset import cifar_data, mnist
 from search_space import search_space
 from params_checker import paramsChecker
 
