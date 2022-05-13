@@ -225,18 +225,6 @@ class neural_network:
         head.reverse()
         to_delete.reverse()
         reused_layers.reverse()
-        
-        print("### head ###")
-        for i in head:
-            print(i.name)
-        
-        print("\n### DELETE ###")
-        for i in to_delete:
-            print(i.name)
-            
-        print("\n### REUSE ###")
-        for i in reused_layers:
-            print(i.name)
             
         x = new_input.output
         for i in reused_layers:
@@ -244,16 +232,18 @@ class neural_network:
     
         for e, i in enumerate(head):
             if 'dense' in i.name:
-                x = Dense(i.units)(x)
+                x = Dense(i.units, name='dense_{}'.format(time()))(x)
             elif 'dropout' in i.name:
-                x = Dropout(i.rate)(x)
+                x = Dropout(i.rate, name='dropout_{}'.format(time()))(x)
             elif 'flatten' in i.name:
                 x = Flatten()(x)
             else:
                 if 'activation' in i.name and e == len(head)-1:
-                    x = Activation('Softmax')(x)
+                    x = Activation(
+                        'Softmax', name='pred_{}'.format(time()))(x)
                 else:
-                    x = Activation(params['activation'])(x)
+                    x = Activation(params['activation'],
+                                   name='activation_{}'.format(time()))(x)
             
         
         return Model(inputs=new_input.input, outputs=x)
