@@ -202,20 +202,16 @@ class neural_network:
             new_model : new updated keras model
         """
         layers_list = model.layers
-        reverse_layers_list = layers_list.reverse()
+        reverse_layers_list = layers_list[::-1]
         buffer_rev = reverse_layers_list
-        if reverse_layers_list is None:
-            print("##############################")
-            print(model.summary())
-            print(layers_list)
-            print("##############################")
+        print(reverse_layers_list)
         for layer in reverse_layers_list:
             if 'conv' in layer.name:
-                del buffer_rev[reverse_layers_list.index(layer)]
                 del buffer_rev[reverse_layers_list.index(layer)-1]
+                del buffer_rev[reverse_layers_list.index(layer)]
                 break
         
-        new_model_layers = buffer_rev.reverse()
+        new_model_layers = buffer_rev[::-1]
         new_model = Model(
             inputs=new_model_layers[0].input, outputs=new_model_layers[len(new_model_layers)-1])
         return new_model
