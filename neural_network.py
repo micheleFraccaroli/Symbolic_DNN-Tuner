@@ -193,9 +193,22 @@ class neural_network:
         return Model(inputs=input, outputs=x)
 
     def remove_conv_layer(self, model):
+        """
+        Remove convolutional layer
+        Args:
+            model (_type_): keras model
+
+        Returns:
+            new_model : new updated keras model
+        """
         layers_list = model.layers
         reverse_layers_list = layers_list.reverse()
         buffer_rev = reverse_layers_list
+        if reverse_layers_list is None:
+            print("##############################")
+            print(model.summary())
+            print(layers_list)
+            print("##############################")
         for layer in reverse_layers_list:
             if 'conv' in layer.name:
                 del buffer_rev[reverse_layers_list.index(layer)]
