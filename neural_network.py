@@ -1,6 +1,7 @@
 import re
 from time import time
 import numpy as np
+from pytest import param
 
 from tensorflow.keras import Model
 from tensorflow.keras import backend as K
@@ -192,7 +193,7 @@ class neural_network:
         input = model.inputs
         return Model(inputs=input, outputs=x)
 
-    def remove_conv_layer(self, model):
+    def remove_conv_layer(self, model, params):
         """
         Remove convolutional layer
         Args:
@@ -202,19 +203,61 @@ class neural_network:
             new_model : new updated keras model
         """
         layers_list = model.layers
+        new_input = model.get_layer(layers_list[0].name)
         reverse_layers_list = layers_list[::-1]
         buffer_rev = reverse_layers_list
-        print(reverse_layers_list)
+        reused_layers, to_delete, head = [], [], []
         for layer in reverse_layers_list:
             if 'conv' in layer.name:
-                del buffer_rev[reverse_layers_list.index(layer)-1]
-                del buffer_rev[reverse_layers_list.index(layer)]
+                to_delete.append(buffer_rev[reverse_layers_list.index(layer)-1])
+                to_delete.append(buffer_rev[reverse_layers_list.index(layer)])
+                buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-1])
+                buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)])
                 break
+        for layer in buffer_rev[:-1]:
+            if 'flatten' in layer.name:
+                head.extend(reused_layers)
+                reused_layers = []
+                head.append(buffer_rev[reverse_layers_list.index(layer)])
+            else:
+                reused_layers.append(buffer_rev[reverse_layers_list.index(layer)])
         
-        new_model_layers = buffer_rev[::-1]
-        new_model = Model(
-            inputs=new_model_layers[0].input, outputs=new_model_layers[len(new_model_layers)-1])
-        return new_model
+        head.reverse()
+        to_delete.reverse()
+        reused_layers.reverse()
+        
+        print("### head ###")
+        for i in head:
+            print(i.name)
+        
+        print("\n### DELETE ###")
+        for i in to_delete:
+            print(i.name)
+            
+        print("\n### REUSE ###")
+        for i in reused_layers:
+            print(i.name)
+            
+        x = new_input.output
+        for i in reused_layers:
+            x = model.get_layer(i.name)(x)
+    
+        for e, i in enumerate(head):
+            if 'dense' in i.name:
+                x = Dense(i.units)(x)
+            elif 'dropout' in i.name:
+                x = Dropout(i.rate)(x)
+            elif 'flatten' in i.name:
+                x = Flatten()(x)
+            else:
+                if 'activation' in i.name and e == len(head)-1:
+                    x = Activation('Softmax')(x)
+                else:
+                    x = Activation(params['activation'])(x)
+            
+        
+        return Model(inputs=new_input.input, outputs=x)
+        
 
     def training(self, params, new, new_fc, new_conv, rem_conv, da, space):
         """
@@ -223,7 +266,7 @@ class neural_network:
         """
 
         model = self.build_network(params, new)
-        if new or new_fc or new_conv:
+        if new or new_fc or new_conv or rem_conv:
             if new_fc:
                 if new_fc[0]:
                     self.dense = True
@@ -243,7 +286,7 @@ class neural_network:
                 self.conv = False
                 self.dense = False
                 self.rgl = False
-                model = self.remove_conv_layer(model)
+                model = self.remove_conv_layer(model, params)
 
         print(model.summary())
         flops, _ = fc.analyze_model(model)
@@ -310,9 +353,16 @@ if __name__ == '__main__':
                       'optimizer': 'RMSProp', 'activation': 'elu', 'reg': 0.05497168445820486, 'new_fc': 497}
 
     n = neural_network(X_train, Y_train, X_test, Y_test, n_classes)
+    
+    model = n.build_network(default_params, None)
+    print(model.summary())
+    
+    new_model = n.remove_conv_layer(model, default_params)
+    
+    print(new_model.summary())
 
-    score, history, model = n.training(default_params, True, [True, 1], None, None, space)
+    # score, history, model = n.training(default_params, True, [True, 1], None, None, space)
 
-    f2 = open("algorithm_logs/history.txt", "w")
-    f2.write(str(history))
-    f2.close()
+    # f2 = open("algorithm_logs/history.txt", "w")
+    # f2.write(str(history))
+    # f2.close()
