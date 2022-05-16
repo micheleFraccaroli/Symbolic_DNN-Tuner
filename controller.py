@@ -71,6 +71,13 @@ class controller:
             smoothed.append(smoothed_val)
             last = smoothed_val
         return smoothed
+    
+    def optimiziation_function(self, accuracy, flops):
+        # norm flops between 0 - 1
+        flops_th = 1
+        nflops = flops / self.flops_th
+        fit_up_flops = abs(flops_th - nflops)
+        return -(abs(accuracy - fit_up_flops))
 
     def training(self, params):
         """
@@ -86,7 +93,8 @@ class controller:
                                                                 self.space)
         self.iter += 1
 
-        return -self.score[1]
+        # return -self.score[1]
+        return self.optimiziation_function(self.score[1], self.flops)
 
     def diagnosis(self):
         """

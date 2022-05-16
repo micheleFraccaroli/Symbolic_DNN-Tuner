@@ -71,11 +71,6 @@ class neural_network:
 
         model = Model(inputs=inputs, outputs=x)
 
-        model_json = model.to_json()
-        model_name = "Model/model-{}.json".format(time())
-        with open(model_name, 'w') as json_file:
-            json_file.write(model_json)
-
         return model
 
     def insert_layer(self, model, layer_regex, params, num_fc=0, num_cv=0, position='after'):
@@ -279,6 +274,11 @@ class neural_network:
                 model = self.remove_conv_layer(model, params)
 
         print(model.summary())
+        model_name_id = time()
+        model_json = model.to_json()
+        model_name = "Model/model-{}.json".format(model_name_id)
+        with open(model_name, 'w') as json_file:
+            json_file.write(model_json)
         flops, _ = fc.analyze_model(model)
         flops = flops.total_float_ops
         trainableParams = np.sum([np.prod(v.get_shape())for v in model.trainable_weights])
@@ -290,7 +290,8 @@ class neural_network:
             print("Restart\n")
 
         # tensorboard logs
-        tensorboard = TensorBoard(log_dir="log_folder/logs/{}-{}".format(time(), params['learning_rate']))
+        tensorboard = TensorBoard(
+            log_dir="log_folder/logs/{}".format(model_name_id))
 
         # losses, lrs = self.lolr_checking(model, space, params['learning_rate'], params['batch_size'], self.train_data,
         #                                  self.train_labels, self.test_data, self.test_labels)
@@ -324,7 +325,7 @@ class neural_network:
                                 callbacks=[tensorboard, reduce_lr, es1, es2]).history
 
         score = model.evaluate(self.test_data, self.test_labels)
-        weights_name = "Weights/weights-{}.h5".format(time())
+        weights_name = "Weights/weights-{}.h5".format(model_name_id)
         model.save_weights(weights_name)
         return score, history, model, flops, nparams  # , rta
 
