@@ -220,10 +220,23 @@ class neural_network:
         head.reverse()
         to_delete.reverse()
         reused_layers.reverse()
+        
+        print("\n\n### head ###")
+        for i in head:
+            print(i.name)
+        print("\n\n### reuse ###")
+        for i in reused_layers:
+            print(i.name)
             
         x = new_input.output
+        buff = None
         for i in reused_layers:
-            x = model.get_layer(i.name)(x)
+            if i.__class__ == buff.__class__:
+                if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name:
+                    pass
+            else:
+                x = model.get_layer(i.name)(x)
+            buff = i
     
         for e, i in enumerate(head):
             if 'dense' in i.name:
@@ -235,11 +248,10 @@ class neural_network:
             else:
                 if 'activation' in i.name and e == len(head)-1:
                     x = Activation(
-                        'Softmax', name='pred_{}'.format(time()))(x)
+                        'Softmax', name='activation_{}'.format(time()))(x)
                 else:
                     x = Activation(params['activation'],
                                    name='activation_{}'.format(time()))(x)
-            
         
         return Model(inputs=new_input.input, outputs=x)
         
@@ -349,6 +361,10 @@ if __name__ == '__main__':
     print(model.summary())
     
     new_model = n.remove_conv_layer(model, default_params)
+    
+    print(new_model.summary())
+    
+    new_model = n.remove_conv_layer(new_model, default_params)
     
     print(new_model.summary())
 
