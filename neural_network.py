@@ -5,6 +5,7 @@ import numpy as np
 from pytest import param
 import json
 
+import tensorflow as tf
 from tensorflow.keras import Model
 from tensorflow.keras import backend as K
 from tensorflow.keras import regularizers as reg
@@ -50,9 +51,12 @@ class neural_network:
         
         try:
             list_ckpt = os.listdir("Model")
-            f = open(list_ckpt[len(list_ckpt)-1])
-            mj = json.loads(f)
-            model = json.dumps(mj)            
+            list_ckpt.sort()
+            f = open("Model/" + list_ckpt[len(list_ckpt)-1])
+            mj = json.load(f)
+            f.close()
+            model_json = json.dumps(mj)
+            model = tf.keras.models.model_from_json(model_json)
         except:
             print(self.train_data.shape)
 
@@ -79,6 +83,13 @@ class neural_network:
             x = Activation('softmax')(x)
 
             model = Model(inputs=inputs, outputs=x)
+            
+            ## provvisorio
+            model_name_id = time()
+            model_json = model.to_json()
+            model_name = "Model/{}.json".format(model_name_id)
+            with open(model_name, 'w') as json_file:
+                json_file.write(model_json)
 
         return model
 
@@ -206,7 +217,13 @@ class neural_network:
         Returns:
             new_model : new updated keras model
         """
+        c = 0
         layers_list = model.layers
+        for i in layers_list:
+            if 'conv' in i.name:
+                c += 1
+        if c == 1:
+            return model
         new_input = model.get_layer(layers_list[0].name)
         reverse_layers_list = layers_list[::-1]
         buffer_rev = reverse_layers_list
@@ -226,6 +243,8 @@ class neural_network:
             else:
                 reused_layers.append(buffer_rev[reverse_layers_list.index(layer)])
         
+        if c == 1:
+            return model
         head.reverse()
         to_delete.reverse()
         reused_layers.reverse()
@@ -373,12 +392,20 @@ if __name__ == '__main__':
     print(model.summary())
     
     new_model = n.remove_conv_layer(model, default_params)
+    model_name_id = time()
+    model_json = new_model.to_json()
+    model_name = "Model/{}.json".format(model_name_id)
+    with open(model_name, 'w') as json_file:
+                json_file.write(model_json)
     
     print(new_model.summary())
     
-    new_model = n.remove_conv_layer(new_model, default_params)
+    model2 = n.build_network(default_params, None)
+    print(model2.summary())
     
-    print(new_model.summary())
+    new_model2 = n.remove_conv_layer(model2, default_params)
+    
+    print(new_model2.summary())
 
     # score, history, model = n.training(default_params, True, [True, 1], None, None, space)
 
