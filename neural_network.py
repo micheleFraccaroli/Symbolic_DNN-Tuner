@@ -1,7 +1,9 @@
 import re
+import os
 from time import time
 import numpy as np
 from pytest import param
+import json
 
 from tensorflow.keras import Model
 from tensorflow.keras import backend as K
@@ -45,31 +47,38 @@ class neural_network:
         Function for define the network structure
         :return: model
         """
-        print(self.train_data.shape)
+        
+        try:
+            list_ckpt = os.listdir("Model")
+            f = open(list_ckpt[len(list_ckpt)-1])
+            mj = json.loads(f)
+            model = json.dumps(mj)            
+        except:
+            print(self.train_data.shape)
 
-        inputs = Input((self.train_data.shape[1:]))
-        x = Conv2D(params['unit_c1'], (3, 3), padding='same')(inputs)
-        x = Activation(params['activation'])(x)
-        x = Conv2D(params['unit_c1'], (3, 3))(x)
-        x = Activation(params['activation'])(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-        #x = Dropout(params['dr1_2'])(x)
+            inputs = Input((self.train_data.shape[1:]))
+            x = Conv2D(params['unit_c1'], (3, 3), padding='same')(inputs)
+            x = Activation(params['activation'])(x)
+            x = Conv2D(params['unit_c1'], (3, 3))(x)
+            x = Activation(params['activation'])(x)
+            x = MaxPooling2D(pool_size=(2, 2))(x)
+            #x = Dropout(params['dr1_2'])(x)
 
-        x = Conv2D(params['unit_c2'], (3, 3), padding='same')(x)
-        x = Activation(params['activation'])(x)
-        x = Conv2D(params['unit_c2'], (3, 3))(x)
-        x = Activation(params['activation'])(x)
-        x = MaxPooling2D(pool_size=(2, 2))(x)
-        x = Dropout(params['dr1_2'])(x)
+            x = Conv2D(params['unit_c2'], (3, 3), padding='same')(x)
+            x = Activation(params['activation'])(x)
+            x = Conv2D(params['unit_c2'], (3, 3))(x)
+            x = Activation(params['activation'])(x)
+            x = MaxPooling2D(pool_size=(2, 2))(x)
+            x = Dropout(params['dr1_2'])(x)
 
-        x = Flatten()(x)
-        x = Dense(params['unit_d'])(x)
-        x = Activation(params['activation'])(x)
-        x = Dropout(params['dr_f'])(x)
-        x = Dense(self.n_classes)(x)
-        x = Activation('softmax')(x)
+            x = Flatten()(x)
+            x = Dense(params['unit_d'])(x)
+            x = Activation(params['activation'])(x)
+            x = Dropout(params['dr_f'])(x)
+            x = Dense(self.n_classes)(x)
+            x = Activation('softmax')(x)
 
-        model = Model(inputs=inputs, outputs=x)
+            model = Model(inputs=inputs, outputs=x)
 
         return model
 
@@ -263,28 +272,31 @@ class neural_network:
         """
 
         model = self.build_network(params, new)
-        if new or new_fc or new_conv or rem_conv:
-            if new_fc:
-                if new_fc[0]:
-                    self.dense = True
-                    model = self.insert_layer(model, '.*dense.*', params, num_fc=new_fc[1])
-            if new:
-                self.rgl = True
-                self.dense = False
-                model = self.insert_layer(model, '.*activation.*', params)
-            if new_conv:
-                if new_conv[0]:
-                    self.conv = True
+        try:
+            if new or new_fc or new_conv or rem_conv:
+                if new_fc:
+                    if new_fc[0]:
+                        self.dense = True
+                        model = self.insert_layer(model, '.*dense.*', params, num_fc=new_fc[1])
+                if new:
+                    self.rgl = True
+                    self.dense = False
+                    model = self.insert_layer(model, '.*activation.*', params)
+                if new_conv:
+                    if new_conv[0]:
+                        self.conv = True
+                        self.dense = False
+                        self.rgl = False
+                        model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1],
+                                                position='before')
+                if rem_conv:
+                    self.conv = False
                     self.dense = False
                     self.rgl = False
-                    model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1],
-                                              position='before')
-            if rem_conv:
-                self.conv = False
-                self.dense = False
-                self.rgl = False
-                model = self.remove_conv_layer(model, params)
-
+                    model = self.remove_conv_layer(model, params)
+        except:
+            pass
+        
         print(model.summary())
         model_name_id = time()
         model_json = model.to_json()
