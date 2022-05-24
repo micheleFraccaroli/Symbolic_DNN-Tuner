@@ -20,7 +20,7 @@ from params_checker import paramsChecker
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 dt = datetime.datetime.now()
-max_evals = 20
+max_evals = 100
 
 # hyper-parameters
 sp = search_space()

@@ -1,0 +1,8 @@
+['inc_lr', 'new_fc_layer']
+['reg_l2', 'data_augmentation', 'inc_lr', 'new_fc_layer']
+['inc_lr', 'inc_neurons', 'inc_batch_size']
+['inc_neurons', 'inc_batch_size']
+['inc_neurons', 'inc_batch_size']
+['inc_lr', 'new_fc_layer', 'inc_batch_size']
+['inc_lr', 'new_fc_layer', 'inc_batch_size']
+['new_fc_layer', 'inc_batch_size']
