@@ -57,6 +57,7 @@ class neural_network:
             f.close()
             model_json = json.dumps(mj)
             model = tf.keras.models.model_from_json(model_json)
+            print("MODELLO PRECEDENTE")
         except:
             print(self.train_data.shape)
 
@@ -87,7 +88,7 @@ class neural_network:
             ## provvisorio
             model_name_id = time()
             model_json = model.to_json()
-            model_name = "Model/{}.json".format(model_name_id)
+            model_name = "Model/model-{}.json".format(model_name_id)
             with open(model_name, 'w') as json_file:
                 json_file.write(model_json)
 
@@ -198,7 +199,7 @@ class neural_network:
                 else:
                     if self.conv and 'dense' in layer.name and layer.output.shape[1] == 10:
                         x = Dense(layer.output.shape[1], name='final')(x)
-                    elif self.conv and 'dense' in layer.name and not '_' in layer.name:
+                    elif self.conv and 'dense' in layer.name:
                         x = Dense(params['unit_d'])(x)
                     else:
                         x = layer(layer_input)
@@ -232,11 +233,12 @@ class neural_network:
             if 'conv' in layer.name:
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)-1])
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)])
+                head_start = buffer_rev[reverse_layers_list.index(layer)-2]
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-1])
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)])
                 break
         for layer in buffer_rev[:-1]:
-            if 'flatten' in layer.name:
+            if head_start.name in layer.name:
                 head.extend(reused_layers)
                 reused_layers = []
                 head.append(buffer_rev[reverse_layers_list.index(layer)])
@@ -258,12 +260,21 @@ class neural_network:
             
         x = new_input.output
         buff = None
-        for i in reused_layers:
-            if i.__class__ == buff.__class__:
-                if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name:
-                    pass
+        for e, i in enumerate(reused_layers):
+            if e == len(reused_layers)-1:
+                if i.__class__ == buff.__class__:
+                    if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name:
+                        pass
+                else:
+                    _x = model.get_layer(i.name)
+                    _x.outbound_nodes[0] = to_delete[1].outbound_nodes[0]
+                    x = _x(x)
             else:
-                x = model.get_layer(i.name)(x)
+                if i.__class__ == buff.__class__:
+                    if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name:
+                        pass
+                else:
+                    x = model.get_layer(i.name)(x)
             buff = i
     
         for e, i in enumerate(head):
@@ -273,6 +284,9 @@ class neural_network:
                 x = Dropout(i.rate, name='dropout_{}'.format(time()))(x)
             elif 'flatten' in i.name:
                 x = Flatten()(x)
+            elif 'max_p' in i.name:
+                x = MaxPooling2D(pool_size=(
+                    2, 2), name=x._keras_history.layer.outbound_nodes[0].outbound_layer.name)(x)
             else:
                 if 'activation' in i.name and e == len(head)-1:
                     x = Activation(
@@ -394,18 +408,21 @@ if __name__ == '__main__':
     new_model = n.remove_conv_layer(model, default_params)
     model_name_id = time()
     model_json = new_model.to_json()
-    model_name = "Model/{}.json".format(model_name_id)
+    model_name = "Model/model-{}.json".format(model_name_id)
     with open(model_name, 'w') as json_file:
                 json_file.write(model_json)
     
     print(new_model.summary())
     
-    model2 = n.build_network(default_params, None)
-    print(model2.summary())
+    # model2 = n.build_network(default_params, None)
+    # print(model2.summary())
     
-    new_model2 = n.remove_conv_layer(model2, default_params)
-    
-    print(new_model2.summary())
+    n.conv = True
+    new_model3 = n.insert_layer(
+        new_model, '.*flatten.*', default_params, num_cv=1, position='before')
+
+    print(new_model3.summary())
+
 
     # score, history, model = n.training(default_params, True, [True, 1], None, None, space)
 
