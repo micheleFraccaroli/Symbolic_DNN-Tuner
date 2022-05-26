@@ -33,7 +33,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 10
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
@@ -195,7 +195,7 @@ class neural_network:
             else:
                 if layer.output.shape[1] == 10 and re.match(layer_regex, layer.name) and not 'Softmax' in \
                                                                                              layer.output.name:
-                    x = Dense(layer.output.shape[1], name='final')(x)
+                    x = Dense(layer.output.shape[1], name='final')(x) 
                 else:
                     if self.conv and 'dense' in layer.name and layer.output.shape[1] == 10:
                         x = Dense(layer.output.shape[1], name='final')(x)

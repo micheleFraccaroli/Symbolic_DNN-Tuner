@@ -39,15 +39,28 @@ class NeuralSymbolicBridge:
         return PrologString(sym_facts + "\n" + sym_prob + "\n" + sym_model)
 
     def complete_probs(self, sym_model):
+        new_str = ""
         temp = sym_model.split("\n")
         res = [temp[0]]
         for t in temp[1:]:
+            cprob = 0
             for p in self.problems:
                 if p in t:
+                    where = t.find(p)
+                    cprob += 1
                     if "eve" in t:
-                        res.append(t[:len(t) - 1] + ", problem(" + p + ").")
+                        new_str = t[:len(t) - 1] + ", problem(" + p + "), "
+                        # res.append(t[:len(t) - 1] + ", problem(" + p + ").")
+                        continue
                     else:
-                        res.append(t[:len(t) - 1] + ":- problem(" + p + ").")
+                        if cprob == 1:
+                            new_str = t[:len(t) - 1] + ":- problem(" + p + "), "
+                        else:
+                            if t[where-2:where] == 'n_':
+                                new_str = new_str + "\+problem(" + p + "), "
+                            else:
+                                new_str = new_str + "problem(" + p + "), "
+            res.append(new_str[:len(new_str)-2] + ".")
         return "\n".join(res)
 
     def edit_probs(self, sym_model):
