@@ -38,29 +38,36 @@ class NeuralSymbolicBridge:
         # return the assembled model
         return PrologString(sym_facts + "\n" + sym_prob + "\n" + sym_model)
 
-    def complete_probs(self, sym_model):
+    def complete_probs(self, sym_model, prev_model):
         new_str = ""
         temp = sym_model.split("\n")
         res = [temp[0]]
-        for t in temp[1:]:
-            cprob = 0
-            for p in self.problems:
-                if p in t:
-                    where = t.find(p)
-                    cprob += 1
-                    if "eve" in t:
-                        new_str = t[:len(t) - 1] + ", problem(" + p + "), "
-                        # res.append(t[:len(t) - 1] + ", problem(" + p + ").")
-                        continue
-                    else:
-                        if cprob == 1:
-                            new_str = t[:len(t) - 1] + ":- problem(" + p + "), "
-                        else:
-                            if t[where-2:where] == 'n_':
-                                new_str = new_str + "\+problem(" + p + "), "
-                            else:
-                                new_str = new_str + "problem(" + p + "), "
-            res.append(new_str[:len(new_str)-2] + ".")
+        for a, p in zip(temp[1:], prev_model[1:]):
+            if "eve" in a:
+                a = a[:-8] + "."
+            prob_st = p.find(":-")
+            problem = p[prob_st:]
+            new = a[:-1] + problem
+            res.append(new)
+        # for t in temp[1:]:
+        #     cprob = 0
+        #     for p in self.problems:
+        #         if p in t:
+        #             where = t.find(p)
+        #             cprob += 1
+        #             if "eve" in t:
+        #                 new_str = t[:len(t) - 1] + ", problem(" + p + "), "
+        #                 # res.append(t[:len(t) - 1] + ", problem(" + p + ").")
+        #                 continue
+        #             else:
+        #                 if cprob == 1:
+        #                     new_str = t[:len(t) - 1] + "problem(" + p + "), "
+        #                 else:
+        #                     if t[where-2:where] == 'n_':
+        #                         new_str = new_str + ":- \+problem(" + p + "), "
+        #                     else:
+        #                         new_str = new_str + ":- problem(" + p + "), "
+        #     res.append(new_str[:len(new_str)-2] + ".")
         return "\n".join(res)
 
     def edit_probs(self, sym_model):
@@ -70,7 +77,7 @@ class NeuralSymbolicBridge:
         for i in range(len(x)):
             xx = re.findall("[0-9][.].*[:][:]['a']", prev_model)
             new = re.sub(xx[i], x[i], sym_model)
-        new = self.complete_probs(new)
+        new = self.complete_probs(new, prev_model.split("\n"))
         f = open("symbolic/sym_prob.pl", "w")
         f.write(new)
         f.close()

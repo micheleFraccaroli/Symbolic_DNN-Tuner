@@ -33,7 +33,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 10
+        self.epochs = 200
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
