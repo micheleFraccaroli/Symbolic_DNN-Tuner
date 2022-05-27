@@ -92,7 +92,7 @@ def start(search_space, iter):
             # controller.set_case(True)
             res = load('checkpoints/checkpoint.pkl')
             try:
-                print(new_space)
+                # print(new_space)
                 search_res = gp_minimize(objective, new_space, x0=res.x_iters, y0=res.func_vals, acq_func='EI',
                                          n_calls=1,
                                          n_random_starts=0, callback=[checkpoint_saver])

@@ -4,6 +4,7 @@ from time import time
 import numpy as np
 from pytest import param
 import json
+from colors import colors
 
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -33,7 +34,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 10
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
@@ -86,11 +87,11 @@ class neural_network:
             model = Model(inputs=inputs, outputs=x)
             
             ## provvisorio
-            model_name_id = time()
-            model_json = model.to_json()
-            model_name = "Model/model-{}.json".format(model_name_id)
-            with open(model_name, 'w') as json_file:
-                json_file.write(model_json)
+            # model_name_id = time()
+            # model_json = model.to_json()
+            # model_name = "Model/model-{}.json".format(model_name_id)
+            # with open(model_name, 'w') as json_file:
+            #     json_file.write(model_json)
 
         return model
 
@@ -169,7 +170,8 @@ class neural_network:
                     raise ValueError('position must be: before, after or replace')
                 if not 'Softmax' in layer.output.name or not 'softm' in layer.output.name:
                     if self.rgl:
-                        x = BatchNormalization()(x)
+                        naming = '{}'.format(time())
+                        x = BatchNormalization(name="btch_nrom_{}".format(naming))(x)
                     elif self.dense and self.counter_fc < self.tot_fc:
                         if num_fc > 0:
                             if num_fc > self.tot_fc:
@@ -312,23 +314,23 @@ class neural_network:
                         self.dense = True
                         model = self.insert_layer(model, '.*dense.*', params, num_fc=new_fc[1])
                 if new:
-                    self.rgl = True
-                    self.dense = False
-                    model = self.insert_layer(model, '.*activation.*', params)
+                    if not self.rgl:
+                        self.rgl = True
+                        self.dense = False
+                        model = self.insert_layer(model, '.*activation.*', params)
                 if new_conv:
                     if new_conv[0]:
                         self.conv = True
                         self.dense = False
                         self.rgl = False
-                        model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1],
-                                                position='before')
+                        model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1], position='before')
                 if rem_conv:
                     self.conv = False
                     self.dense = False
                     self.rgl = False
                     model = self.remove_conv_layer(model, params)
-        except:
-            pass
+        except Exception as e:
+            print(colors.FAIL, e, colors.ENDC)
         
         print(model.summary())
         model_name_id = time()
@@ -341,6 +343,9 @@ class neural_network:
         trainableParams = np.sum([np.prod(v.get_shape())for v in model.trainable_weights])
         nonTrainableParams = np.sum([np.prod(v.get_shape())for v in model.non_trainable_weights])
         nparams = trainableParams + nonTrainableParams
+
+        print(colors.FAIL, "FLOPS: " + str(flops), colors.ENDC)
+        print(colors.FAIL, "PARAMS: " + str(nparams), colors.ENDC)
         try:
             model.load_weights("Weights/weights.h5")
         except:

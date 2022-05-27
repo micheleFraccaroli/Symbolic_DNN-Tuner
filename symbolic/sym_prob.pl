@@ -4,7 +4,7 @@ action(decr_lr,inc_loss):- eve, problem(inc_loss).
 action(decr_lr,high_lr):- eve, problem(high_lr).
 action(inc_lr,low_lr):- eve, problem(low_lr).
 0.4::action(inc_dropout,overfitting):- problem(overfitting).
-0.6::action(data_augmentation,overfitting):- problem(overfitting).
+1.0::action(data_augmentation,overfitting):- problem(overfitting).
 0.3::action(decr_lr,underfitting):- problem(underfitting).
 1.0::action(inc_neurons,underfitting):- problem(underfitting).
 0.45::action(new_fc_layer):- problem(underfitting), \+problem(latency), \+problem(model_size).
