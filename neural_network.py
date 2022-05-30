@@ -169,9 +169,9 @@ class neural_network:
                 else:
                     raise ValueError('position must be: before, after or replace')
                 if not 'Softmax' in layer.output.name or not 'softm' in layer.output.name:
-                    if self.rgl:
+                    if self.rgl and not any(['batch' in i.name for i in model.layers]):
                         naming = '{}'.format(time())
-                        x = BatchNormalization(name="btch_nrom_{}".format(naming))(x)
+                        x = BatchNormalization(name="batch_norm_{}".format(naming))(x)
                     elif self.dense and self.counter_fc < self.tot_fc:
                         if num_fc > 0:
                             if num_fc > self.tot_fc:
@@ -314,10 +314,9 @@ class neural_network:
                         self.dense = True
                         model = self.insert_layer(model, '.*dense.*', params, num_fc=new_fc[1])
                 if new:
-                    if not self.rgl:
-                        self.rgl = True
-                        self.dense = False
-                        model = self.insert_layer(model, '.*activation.*', params)
+                    self.rgl = True
+                    self.dense = False
+                    model = self.insert_layer(model, '.*activation.*', params)
                 if new_conv:
                     if new_conv[0]:
                         self.conv = True
