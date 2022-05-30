@@ -34,7 +34,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 10
+        self.epochs = 100
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
@@ -220,6 +220,7 @@ class neural_network:
         Returns:
             new_model : new updated keras model
         """
+        btc = any(['batch' in i.name for i in model.layers])
         c = 0
         layers_list = model.layers
         for i in layers_list:
@@ -233,9 +234,15 @@ class neural_network:
         reused_layers, to_delete, head = [], [], []
         for layer in reverse_layers_list:
             if 'conv' in layer.name:
+                if btc:
+                    to_delete.append(buffer_rev[reverse_layers_list.index(layer)-2])
+                    head_start = buffer_rev[reverse_layers_list.index(layer)-3]
+                    buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-2])
+                else:
+                    head_start = buffer_rev[reverse_layers_list.index(layer)-2]
+
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)-1])
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)])
-                head_start = buffer_rev[reverse_layers_list.index(layer)-2]
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-1])
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)])
                 break
@@ -273,7 +280,7 @@ class neural_network:
                     x = _x(x)
             else:
                 if i.__class__ == buff.__class__:
-                    if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name:
+                    if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name or 'batch' in i.name:
                         pass
                 else:
                     x = model.get_layer(i.name)(x)
@@ -288,14 +295,14 @@ class neural_network:
                 x = Flatten()(x)
             elif 'max_p' in i.name:
                 x = MaxPooling2D(pool_size=(
-                    2, 2), name=x._keras_history.layer.outbound_nodes[0].outbound_layer.name)(x)
+                    2, 2), name=i.name)(x)
+            elif 'batch' in i.name:
+                x = BatchNormalization(name=i.name)(x)
             else:
                 if 'activation' in i.name and e == len(head)-1:
-                    x = Activation(
-                        'Softmax', name='activation_{}'.format(time()))(x)
+                    x = Activation('Softmax', name='activation_{}'.format(time()))(x)
                 else:
-                    x = Activation(params['activation'],
-                                   name='activation_{}'.format(time()))(x)
+                    x = Activation(params['activation'], name='activation_{}'.format(time()))(x)
         
         return Model(inputs=new_input.input, outputs=x)
         
