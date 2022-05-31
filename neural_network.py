@@ -235,14 +235,16 @@ class neural_network:
         for layer in reverse_layers_list:
             if 'conv' in layer.name:
                 if btc:
-                    to_delete.append(buffer_rev[reverse_layers_list.index(layer)-2])
-                    head_start = buffer_rev[reverse_layers_list.index(layer)-3]
-                    buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-2])
+                    to_delete.append(buffer_rev[reverse_layers_list.index(layer)-3])
+                    head_start = buffer_rev[reverse_layers_list.index(layer)-4]
+                    buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-3])
                 else:
-                    head_start = buffer_rev[reverse_layers_list.index(layer)-2]
+                    head_start = buffer_rev[reverse_layers_list.index(layer)-3]
 
+                to_delete.append(buffer_rev[reverse_layers_list.index(layer)-2])
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)-1])
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)])
+                buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-2])
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-1])
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)])
                 break
