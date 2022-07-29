@@ -101,6 +101,7 @@ class controller:
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
         self.score, self.history, self.model, self.flops, self.nparams = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.rem_conv, self.da,
                                                                 self.space)
+        self.rem_conv = False
         self.iter += 1
 
         # return -self.score[1]

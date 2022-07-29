@@ -4,6 +4,7 @@ from time import time
 import numpy as np
 from pytest import param
 import json
+from colors import colors
 
 import tensorflow as tf
 from tensorflow.keras import Model
@@ -33,7 +34,7 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 200
+        self.epochs = 100
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
@@ -86,11 +87,11 @@ class neural_network:
             model = Model(inputs=inputs, outputs=x)
             
             ## provvisorio
-            model_name_id = time()
-            model_json = model.to_json()
-            model_name = "Model/model-{}.json".format(model_name_id)
-            with open(model_name, 'w') as json_file:
-                json_file.write(model_json)
+            # model_name_id = time()
+            # model_json = model.to_json()
+            # model_name = "Model/model-{}.json".format(model_name_id)
+            # with open(model_name, 'w') as json_file:
+            #     json_file.write(model_json)
 
         return model
 
@@ -168,8 +169,9 @@ class neural_network:
                 else:
                     raise ValueError('position must be: before, after or replace')
                 if not 'Softmax' in layer.output.name or not 'softm' in layer.output.name:
-                    if self.rgl:
-                        x = BatchNormalization()(x)
+                    if self.rgl and not any(['batch' in i.name for i in model.layers]):
+                        naming = '{}'.format(time())
+                        x = BatchNormalization(name="batch_norm_{}".format(naming))(x)
                     elif self.dense and self.counter_fc < self.tot_fc:
                         if num_fc > 0:
                             if num_fc > self.tot_fc:
@@ -218,6 +220,7 @@ class neural_network:
         Returns:
             new_model : new updated keras model
         """
+        btc = any(['batch' in i.name for i in model.layers])
         c = 0
         layers_list = model.layers
         for i in layers_list:
@@ -231,9 +234,17 @@ class neural_network:
         reused_layers, to_delete, head = [], [], []
         for layer in reverse_layers_list:
             if 'conv' in layer.name:
+                if btc:
+                    to_delete.append(buffer_rev[reverse_layers_list.index(layer)-3])
+                    head_start = buffer_rev[reverse_layers_list.index(layer)-4]
+                    buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-3])
+                else:
+                    head_start = buffer_rev[reverse_layers_list.index(layer)-3]
+
+                to_delete.append(buffer_rev[reverse_layers_list.index(layer)-2])
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)-1])
                 to_delete.append(buffer_rev[reverse_layers_list.index(layer)])
-                head_start = buffer_rev[reverse_layers_list.index(layer)-2]
+                buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-2])
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)-1])
                 buffer_rev.remove(buffer_rev[reverse_layers_list.index(layer)])
                 break
@@ -271,7 +282,7 @@ class neural_network:
                     x = _x(x)
             else:
                 if i.__class__ == buff.__class__:
-                    if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name:
+                    if 'max_pool' in i.name or 'activation' in i.name or 'dropout' in i.name or 'batch' in i.name:
                         pass
                 else:
                     x = model.get_layer(i.name)(x)
@@ -286,14 +297,14 @@ class neural_network:
                 x = Flatten()(x)
             elif 'max_p' in i.name:
                 x = MaxPooling2D(pool_size=(
-                    2, 2), name=x._keras_history.layer.outbound_nodes[0].outbound_layer.name)(x)
+                    2, 2), name=i.name)(x)
+            elif 'batch' in i.name:
+                x = BatchNormalization(name=i.name)(x)
             else:
                 if 'activation' in i.name and e == len(head)-1:
-                    x = Activation(
-                        'Softmax', name='activation_{}'.format(time()))(x)
+                    x = Activation('Softmax', name='activation_{}'.format(time()))(x)
                 else:
-                    x = Activation(params['activation'],
-                                   name='activation_{}'.format(time()))(x)
+                    x = Activation(params['activation'], name='activation_{}'.format(time()))(x)
         
         return Model(inputs=new_input.input, outputs=x)
         
@@ -320,15 +331,14 @@ class neural_network:
                         self.conv = True
                         self.dense = False
                         self.rgl = False
-                        model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1],
-                                                position='before')
+                        model = self.insert_layer(model, '.*flatten.*', params, num_cv=new_conv[1], position='before')
                 if rem_conv:
                     self.conv = False
                     self.dense = False
                     self.rgl = False
                     model = self.remove_conv_layer(model, params)
-        except:
-            pass
+        except Exception as e:
+            print(colors.FAIL, e, colors.ENDC)
         
         print(model.summary())
         model_name_id = time()
@@ -341,6 +351,9 @@ class neural_network:
         trainableParams = np.sum([np.prod(v.get_shape())for v in model.trainable_weights])
         nonTrainableParams = np.sum([np.prod(v.get_shape())for v in model.non_trainable_weights])
         nparams = trainableParams + nonTrainableParams
+
+        print(colors.FAIL, "FLOPS: " + str(flops), colors.ENDC)
+        print(colors.FAIL, "PARAMS: " + str(nparams), colors.ENDC)
         try:
             model.load_weights("Weights/weights.h5")
         except:
