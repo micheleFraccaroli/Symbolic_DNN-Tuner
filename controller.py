@@ -1,4 +1,5 @@
 from tensorflow.keras import backend as K
+import matplotlib.pyplot as plt
 
 from colors import colors
 from diagnosis import diagnosis
@@ -32,6 +33,7 @@ class controller:
         self.symbolic_diagnosis = []
         self.issues = []
         self.weight = 0.6
+        self.epsilon = 0.33
         self.new = None
         self.new_fc = None
         self.new_conv = None
@@ -42,10 +44,14 @@ class controller:
         self.iter = 0
         self.lacc = 0.15
         self.hloss = 1.2
-        self.flops_th = 77479996 
+        self.flops_th = 77479996
         self.nparams_th = 23851784 # inceptionV3 total params
         self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
+        # for plotting tuner optimization function
+        self.tuner_opt_function = []
+        self.flops_gap = []
+        self.tuner_steps = 0
 
     def set_case(self, new):
         self.new = new
@@ -77,7 +83,11 @@ class controller:
         flops_th = 1
         nflops = flops / self.flops_th
         fit_up_flops = abs(flops_th - nflops)
-        return -(abs(accuracy - fit_up_flops))
+        res = -(abs(accuracy - fit_up_flops*self.epsilon))
+        self.flops_gap.append(fit_up_flops)
+        self.tuner_steps += 1
+        self.tuner_opt_function.append(res)
+        return res
 
     def training(self, params):
         """
@@ -152,3 +162,12 @@ class controller:
         print(colors.FAIL, "| END SYMBOLIC TUNING      ----------------------------------  |\n", colors.ENDC)
 
         return new_space, -self.score[1], self.model
+
+    def plotting_obj_function(self):
+        x = list(range(self.tuner_steps))
+        x = [float(i) for i in x]
+        y1 = self.tuner_opt_function
+        y2 = self.flops_gap
+        plt.plot(x, y1, color='black')
+        plt.plot(x, y2, color='blue')
+        plt.savefig("objective_funct.png")

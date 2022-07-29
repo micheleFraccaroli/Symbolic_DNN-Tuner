@@ -20,7 +20,7 @@ from params_checker import paramsChecker
 
 X_train, X_test, Y_train, Y_test, n_classes = cifar_data()
 dt = datetime.datetime.now()
-max_evals = 100
+max_evals = 3
 
 # hyper-parameters
 sp = search_space()
@@ -125,3 +125,5 @@ print(colors.OKGREEN, "\nEND ALGORITHM \n", colors.ENDC)
 end_time = time.time()
 
 print(colors.CYAN, "\nTIME --------> \n", end_time - start_time, colors.ENDC)
+
+controller.plotting_obj_function()
