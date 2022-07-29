@@ -172,6 +172,6 @@ class controller:
         x = [float(i) for i in x]
         y1 = self.tuner_opt_function
         y2 = self.flops_gap
-        plt.plot(x, y1, color='black')
-        plt.plot(x, y2, color='blue')
+        plt.plot(x, y1, color='black', label="Total Object Function")
+        plt.plot(x, y2, color='blue', label="FLOPS gap")
         plt.savefig("objective_funct.png")
