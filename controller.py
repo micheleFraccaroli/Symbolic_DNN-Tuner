@@ -32,6 +32,7 @@ class controller:
         self.symbolic_diagnosis = []
         self.issues = []
         self.weight = 0.6
+        self.epsilon = 0.33
         self.new = None
         self.new_fc = None
         self.new_conv = None
@@ -42,7 +43,7 @@ class controller:
         self.iter = 0
         self.lacc = 0.15
         self.hloss = 1.2
-        self.flops_th = 77479996 
+        self.flops_th = 77479996
         self.nparams_th = 23851784 # inceptionV3 total params
         self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
@@ -77,7 +78,7 @@ class controller:
         flops_th = 1
         nflops = flops / self.flops_th
         fit_up_flops = abs(flops_th - nflops)
-        return -(abs(accuracy - fit_up_flops))
+        return -(abs(accuracy - fit_up_flops*self.epsilon))
 
     def training(self, params):
         """
@@ -91,6 +92,9 @@ class controller:
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
         self.score, self.history, self.model, self.flops, self.nparams = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.rem_conv, self.da,
                                                                 self.space)
+        f = open("graph_report.txt", "a")
+        f.write(str(self.flops_th) + " " + str(self.flops) + " " + str(self.score[1]) + "\n")
+        f.close()
         self.rem_conv = False
         self.iter += 1
 
