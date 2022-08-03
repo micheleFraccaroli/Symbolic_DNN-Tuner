@@ -39,7 +39,7 @@ class neural_network:
         self.counter_fc = 0
         self.counter_conv = 0
         self.tot_fc = 3
-        self.tot_conv = 4
+        self.tot_conv = 6
         self.rgl = False
         self.dense = False
         self.conv = False

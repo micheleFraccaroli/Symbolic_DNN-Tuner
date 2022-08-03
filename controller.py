@@ -1,3 +1,4 @@
+import os
 from tensorflow.keras import backend as K
 import matplotlib.pyplot as plt
 
@@ -101,6 +102,8 @@ class controller:
         self.nn = neural_network(self.X_train, self.Y_train, self.X_test, self.Y_test, self.n_classes)
         self.score, self.history, self.model, self.flops, self.nparams = self.nn.training(params, self.new, self.new_fc, self.new_conv, self.rem_conv, self.da,
                                                                 self.space)
+        if os.path.exists("graph_report.txt"):
+            os.remove("graph_report.txt")
         f = open("graph_report.txt", "a")
         f.write(str(self.flops_th) + " " + str(self.flops) + " " + str(self.score[1]) + "\n")
         f.close()
