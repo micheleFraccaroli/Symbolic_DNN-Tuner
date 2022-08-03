@@ -34,12 +34,12 @@ class neural_network:
         self.train_data /= 255
         self.test_data /= 255
         self.n_classes = n_classes
-        self.epochs = 100
+        self.epochs = 200
         self.last_dense = 0
         self.counter_fc = 0
         self.counter_conv = 0
         self.tot_fc = 3
-        self.tot_conv = 1
+        self.tot_conv = 4
         self.rgl = False
         self.dense = False
         self.conv = False
@@ -187,10 +187,10 @@ class neural_network:
                         naming = '{}'.format(time())
                         x = Conv2D(params['unit_c2'], (3, 3), padding='same', name='conv_{}'.format(naming))(x)
                         x = Activation(params['activation'], name='activation_{}'.format(naming))(x)
-                        x = Conv2D(params['unit_c2'], (3, 3), name='conv_2_{}'.format(naming))(x)
-                        x = Activation(params['activation'], name='activation_2_{}'.format(naming))(x)
-                        x = MaxPooling2D(pool_size=(2, 2), name='maxpooling_{}'.format(naming))(x)
-                        x = Dropout(params['dr1_2'], name='dropout_{}'.format(naming))(x)
+                        # x = Conv2D(params['unit_c2'], (3, 3), name='conv_2_{}'.format(naming))(x)
+                        # x = Activation(params['activation'], name='activation_2_{}'.format(naming))(x)
+                        # x = MaxPooling2D(pool_size=(2, 2), name='maxpooling_{}'.format(naming))(x)
+                        # x = Dropout(params['dr1_2'], name='dropout_{}'.format(naming))(x)
 
                 if position == 'before':
                     x = layer(x)

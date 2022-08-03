@@ -44,7 +44,7 @@ class controller:
         self.iter = 0
         self.lacc = 0.15
         self.hloss = 1.2
-        self.flops_th = 77479996
+        self.flops_th = 120000000
         self.nparams_th = 23851784 # inceptionV3 total params
         self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
