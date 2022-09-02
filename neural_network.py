@@ -397,6 +397,13 @@ class neural_network:
         score = model.evaluate(self.test_data, self.test_labels)
         weights_name = "Weights/weights-{}.h5".format(model_name_id)
         model.save_weights(weights_name)
+        
+        f = open("Model/model-{}.json".format(model_name_id))
+        mj = json.load(f)
+        model_json = json.dumps(mj)
+        model = tf.keras.models.model_from_json(model_json)
+        model.load_weights("Weights/weights-{}.h5".format(model_name_id))
+        model.save("dashboard/model/model.h5")
         return score, history, model, flops, nparams  # , rta
 
 

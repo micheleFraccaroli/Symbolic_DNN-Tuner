@@ -1,0 +1,169 @@
+h1,h2,h3,h4,h5,h6 {
+    font-family: Arial, Helvetica, sans-serif!important;
+    text-align: center;
+    color: 	#a1a0a0;
+}
+
+h1{
+    margin-block-start: 0;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+h4{
+    border-bottom: 1px solid #a1a0a0;
+    margin-block-start: 0;
+    margin-block-end: 0;
+    font-weight:normal;
+    padding: 10px;
+    font-size:18px!important;
+}
+body{
+    margin: 0;
+    background-color:#231F1F;
+}
+table{
+    border-spacing: 5px!important;
+}
+
+/* ************************************************ HYPERPARAMETERS ************************************************ */
+
+.hyperparameters {
+    background-color: #2d2828;
+    box-shadow: 2px 3px 3px black;
+}
+
+#key-hyper {
+    color:#a1a0a0;
+    font-family: Arial, Helvetica, sans-serif!important;
+    font-size:16px!important;
+}
+#value-hyper {
+    color: #00bc8e;
+    font-family: Arial, Helvetica, sans-serif!important;
+    font-size:16px!important;
+}
+ul{
+    margin-block-start: 0;
+    margin-block-end: 0;
+    padding-inline-start: 5px;
+    padding-inline-end: 5px;
+}
+
+ul p {
+    margin-top: 16px!important;
+}
+
+/* ************************************************** GRAPHS ************************************************** */
+
+.graphs {
+    background-color: #2d2828;
+}
+
+/* ************************************************** WEIGHTS ************************************************** */
+
+.header-prob-weights {
+    box-shadow: 2px 2px 5px black;
+    margin-block-end: 7px;
+    height: 2em;
+    background-color: #2d2828;
+    border-radius: 8px;
+}
+
+.header-prob-weights h5 {
+    margin: auto;
+    vertical-align: middle;
+    line-height: 1.7em;
+}
+
+
+.dHABtm {
+    /*units setting*/
+    font-weight: bold;
+    font-size: 17px !important;
+    margin-bottom: -10px !important;
+}
+
+label {
+    margin-bottom: 0 !important;
+}
+
+.weights {
+    background-color: #231f1f;
+}
+
+.weights-height {
+    height: 330px;
+}
+
+.title-weights {
+    color: #a1a0a0;
+    font-size: 17px!important;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif!important;
+    border-bottom: 1px solid grey!important;
+    margin-block-start: 5px;
+    margin-block-end: 0;
+    margin-inline-start: 0;
+    margin-inline-end: 0;
+}
+
+.cRfgdB .track.progress {
+    /*color weights*/
+    stroke: #297db7!important;
+}
+.sc-bwzfXH {
+    color: #a1a0a0;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif!important;
+    border-top: 1px solid 	#a1a0a0;
+}
+.hiuTRN {
+    /* Weights label*/
+    font-size:17px!important;
+    /*transform: translateY(-20px)!important;*/
+}
+
+/* Tabs colour */
+.nav-tabs .nav-link.active, .nav-tabs .nav-item.show .nav-link {
+    background-color: #231f1f!important;
+}
+
+/* ************************************************** METRICS ************************************************** */
+
+.js-line {
+    stroke: #00bc8e !important;
+}
+
+.point {
+    fill: #00bc8e !important;
+}
+
+/* ************************************************** BUTTON ************************************************** */
+
+.refresh-btn {
+    transition: 0.3s;
+    position: fixed;
+    top: 19px;
+    right: 63px;
+    font-size: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10001;
+    border-radius: 100%;
+    border-width: 2px;
+    width: 50px;
+    height: 50px;
+    cursor: pointer;
+}
+
+/* ************************************************** HEADER ************************************************** */
+
+.header-style {
+    box-shadow: 2px 2px 5px black;
+    margin-block-end: 7px;
+    background-color: #2d2828;
+    border-radius: 15px;
+}
+
