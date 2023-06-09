@@ -26,7 +26,7 @@ class controller:
         self.ss = search_space()
         self.space = self.ss.search_sp()
         self.tr = tuning_rules_symbolic(self.space, self.ss, self)
-        self.nsb = NeuralSymbolicBridge()
+        self.nsb = NeuralSymbolicBridge() # problems e initial_facts
         self.db = StoringExperience()
         self.db.create_db()
         self.lfi = LfiIntegration(self.db)
@@ -45,7 +45,7 @@ class controller:
         self.iter = 0
         self.lacc = 0.15
         self.hloss = 1.2
-        self.flops_th = 120000000
+        self.flops_th = 1200
         self.nparams_th = 23851784 # inceptionV3 total params
         self.levels = [7, 10, 13]
         self.imp_checker = ImprovementChecker(self.db, self.lfi)
@@ -119,10 +119,8 @@ class controller:
         :return: call to tuning method or hp_space, model and accuracy(*-1)
         """
         print(colors.CYAN, "| START SYMBOLIC DIAGNOSIS ----------------------------------  |\n", colors.ENDC)
-        diagnosis_logs = open("algorithm_logs/diagnosis_symbolic_logs.txt", "a")
+        diagnosis_logs = open("algorithm_logs/diagnosis_symbolic_logs.txt", "a") # TODO add creation of folder when needed and absent in filesystem
         tuning_logs = open("algorithm_logs/tuning_symbolic_logs.txt", "a")
-
-        print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
         improv = self.imp_checker.checker(self.score[1], self.score[0])
         self.db.insert_ranking(self.score[1], self.score[0])
@@ -141,13 +139,16 @@ class controller:
 
         self.symbolic_tuning, self.symbolic_diagnosis = self.nsb.symbolic_reasoning(
             [self.history['loss'], self.smooth(self.history['loss']),
-             self.smooth(self.history['accuracy']),
-             self.history['accuracy'],
-             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss, self.flops, self.flops_th, self.nparams, self.nparams_th],
+             self.history['accuracy'], self.smooth(self.history['accuracy']),
+             self.history['val_loss'], self.history['val_accuracy'], int_loss, int_slope, self.lacc, self.hloss,
+             self.flops, self.flops_th,
+             self.nparams, self.nparams_th],
             diagnosis_logs, tuning_logs)
 
         diagnosis_logs.close()
         tuning_logs.close()
+
+        print(colors.CYAN, "| END SYMBOLIC DIAGNOSIS   ----------------------------------  |\n", colors.ENDC)
 
         if self.symbolic_tuning:
             self.space, to_optimize, self.model = self.tuning()
